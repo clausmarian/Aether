@@ -1,3 +1,35 @@
+const ArchCustom = {
+  'user_switcher_enabled': false,
+  'date_enabled': true,
+  'date_format': '<em>%A</em>, <em>%d/%m/%Y</em>',
+  'time_enabled': true,
+  'time_format': '%H:%M',
+  'command_shutdown_enabled': true,
+  'command_reboot_enabled': true,
+  'command_hibernate_enabled': false,
+  'command_sleep_enabled': false,
+  'avatar_enabled': true,
+  'avatar_background_enabled': false,
+  'hostname_enabled': false,
+  'window_border_radius': '42px',
+  'window_font_size': '1em',
+  'page_zoom': 1,
+  'experimental_stars_enabled': false,
+  'style_command_icons_enabled': true,
+  'style_command_text_align': 'center',
+  'style_command_background_color': 'hsl(200, 80%, 14%, 0.8)',
+  'style_command_icon_color':  'hsl(199, 66%, 65%, 1)',
+  'style_command_text_color': 'hsl(0, 0%, 100%, 1)',
+  'style_login_border_enabled': false,
+  'style_login_border_color': 'hsl(200, 80%, 14%, 0.8)',
+  'style_login_gradient_top_color': 'hsl(193, 80%, 71%, 0.5)',
+  'style_login_gradient_bottom_color': 'hsl(193, 80%, 71%, 0.8)',
+  'style_login_button_color': 'hsl(200, 80%, 14%, 0.5)',
+  'style_login_username_color': 'hsl(0, 0%, 100%, 1)',
+  'style_login_button_text_color': 'hsl(0, 0%, 100%, 1)',
+  'style_login_username_capitalization': 'Capitalize'
+};
+
 const Glass = {
   'avatar_enabled': false,
   'avatar_size': '200px',
@@ -178,6 +210,7 @@ const Seattle = {
 };
 
 export const DefaultThemes = {
+  ArchCustom,
   Arch,
   Default,
   'El Capitan': Capitan,
