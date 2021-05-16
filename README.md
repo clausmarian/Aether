@@ -65,14 +65,12 @@ pacaur -S lightdm-webkit-theme-aether
 
 This assumes that you already have lightdm and lightdm-webkit2-greeter installed (but not configured).
 
-NOTE: Users performing a manual installation directly from Github should replace the `lightdm-webkit-theme-aether` values in the provided sed commands with `Aether` to match the name of the theme directory. Users performing a manual installation from the AUR should make no changes.
-
 ```
-# If you prefer the last stable release, download from the releases page instead: https://github.com/NoiSek/Aether/releases/latest
-git clone git@github.com:NoiSek/Aether.git
-sudo cp --recursive Aether /usr/share/lightdm-webkit/themes/Aether
+# If you prefer the last stable release, download from the releases page instead: https://github.com/clausmarian/Aether/releases/latest
+git clone git@github.com:clausmarian/Aether.git
+sudo cp --recursive Aether /usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether
 
-# Set default lightdm-webkit2-greeter theme to Aether
+# Set default lightdm-webkit2-greeter theme to lightdm-webkit-theme-aether
 sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
 
 # Set default lightdm greeter to lightdm-webkit2-greeter
