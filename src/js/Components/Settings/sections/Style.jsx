@@ -49,14 +49,14 @@ export const StyleSection = (props) => {
           <hr />
           <Checkbox
             name={ "Icons Enabled" }
-            value={ settings.command_icons_enabled }
-            boundFunction={ props.settingsToggleBinary.bind(this, 'command_icons_enabled') }
+            value={ settings.style_command_icons_enabled }
+            boundFunction={ props.settingsToggleBinary.bind(this, 'style_command_icons_enabled') }
           />
           <Dropdown
             name={ "Text Align" }
-            value={ settings.command_text_align }
+            value={ settings.style_command_text_align }
             options={ ['left', 'center', 'right'] }
-            boundFunction={ props.settingsSetValue.bind(this, 'command_text_align') }
+            boundFunction={ props.settingsSetValue.bind(this, 'style_command_text_align') }
           />
           <div className="color-group">
             <ColorPicker
@@ -75,6 +75,19 @@ export const StyleSection = (props) => {
               boundFunction={ props.settingsSetValue.bind(this, 'style_command_text_color') }
             />
           </div>
+          <h4>Distro Logo</h4>
+          <hr />
+          <Checkbox
+            name={ "Desaturate" }
+            value={ settings.style_command_logo_desaturate }
+            boundFunction={ props.settingsToggleBinary.bind(this, 'style_command_logo_desaturate') }
+          />
+          <TextField
+            name={ "Brightness" }
+            disabled={ !settings.style_command_logo_desaturate }
+            value={ settings.style_command_logo_brightness }
+            boundFunction={ props.settingsSetValue.bind(this, 'style_command_logo_brightness') }
+          />
         </ul>
 
         <ul>
@@ -84,12 +97,6 @@ export const StyleSection = (props) => {
             name={ "Border Enabled" }
             value={ settings.style_login_border_enabled }
             boundFunction={ props.settingsToggleBinary.bind(this, 'style_login_border_enabled') }
-          />
-          <Dropdown
-            name={ "Name Style" }
-            value={ settings.style_username_capitalization }
-            options={ ['default', 'UPPERCASE', 'lowercase', 'Capitalize'] }
-            boundFunction={ props.settingsSetValue.bind(this, 'style_username_capitalization') }
           />
           <div className="color-group">
             <ColorPicker
@@ -123,6 +130,24 @@ export const StyleSection = (props) => {
               boundFunction={ props.settingsSetValue.bind(this, 'style_login_button_text_color') }
             />
           </div>
+          <h4>Username</h4>
+          <hr />
+          <Dropdown
+            name={ "Capitalization" }
+            value={ settings.style_login_username_capitalization }
+            options={ ['default', 'UPPERCASE', 'lowercase', 'Capitalize'] }
+            boundFunction={ props.settingsSetValue.bind(this, 'style_login_username_capitalization') }
+          />
+          <Checkbox
+            name={ "Bold" }
+            value={ settings.style_login_username_bold }
+            boundFunction={ props.settingsToggleBinary.bind(this, 'style_login_username_bold') }
+          />
+          <Checkbox
+            name={ "Italic" }
+            value={ settings.style_login_username_italic }
+            boundFunction={ props.settingsToggleBinary.bind(this, 'style_login_username_italic') }
+          />
         </ul>
       </div>
     </div>

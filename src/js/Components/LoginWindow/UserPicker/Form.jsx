@@ -14,6 +14,7 @@ import SessionSwitcher from './SessionSwitcher';
 
 
 const submitIcon = require('img/arrow.svg');
+const dropdownIcon = require('img/dropdown-caret.svg');
 
 
 class UserPanelForm extends React.Component {
@@ -41,11 +42,13 @@ class UserPanelForm extends React.Component {
       'capitalize': 'capitalize'
     };
 
-    const textTransformStyle = this.props.settings.style_username_capitalization;
+    const textTransformStyle = this.props.settings.style_login_username_capitalization;
 
     let usernameClasses = ['user-username'];
     usernameClasses.push(cxs({
       "color": this.props.settings.style_login_username_color,
+      "font-style": (this.props.settings.style_login_username_italic) ? 'italic' : 'initial',
+      "font-weight": (this.props.settings.style_login_username_bold) ? 'bold' : 'initial',
       "text-transform": textTransformDict[textTransformStyle.toLowerCase()]
     }));
 
@@ -55,6 +58,8 @@ class UserPanelForm extends React.Component {
     submitButtonClasses.push(cxs({
       "color": this.props.settings.style_login_button_text_color
     }));
+
+    let dropdownCaretWrapperClasses = cxs({ "color": this.props.settings.style_login_button_text_color });
 
     let sessionSelectButtonClasses = ['left', 'session-select'];
     sessionSelectButtonClasses.push(cxs({
@@ -86,6 +91,7 @@ class UserPanelForm extends React.Component {
           <div className="submit-row">
             <div className={ sessionSelectButtonClasses.join(' ') } onClick={ this.toggleSessionSwitcher.bind(this) }>
               <div className='text'>{ this.props.activeSession.name }</div>
+              <div className={ dropdownCaretWrapperClasses } dangerouslySetInnerHTML={{ "__html": dropdownIcon }} />
             </div>
             <div className="right">
               <label className={ submitButtonClasses.join(" ") }>
