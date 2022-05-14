@@ -1,11 +1,12 @@
 /* eslint { no-redeclare: 0 } */
 import * as Settings from '../Logic/Settings';
+import { getRelativePath } from '../Logic/FileOperations';
 import { setPageZoom } from '../Utils/Utils';
 
 export function addAdditionalSettings(state) {
   // Define our defaults
 
-  let distroDefault = (window.__debug === true) ? "src/test/logos/archlinux.png" : "/usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether/src/img/logos/archlinux.png";
+  let distroDefault = (window.__debug === true) ? "src/test/logos/archlinux.png" : getRelativePath("assets/img/logos/archlinux.png");
 
   let defaults = {
     "active": false,

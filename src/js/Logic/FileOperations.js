@@ -2,6 +2,11 @@
 // --------------------------------------
 // LightDM related file / config fetching.
 
+export function getRelativePath(path="") {
+  return "/usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether/" + path;
+}
+
+
 export function getWallpaperDirectory() {
   // Return the test folder when debugging.
   if (window.__debug === true) {
@@ -13,7 +18,7 @@ export function getWallpaperDirectory() {
   // Do NOT allow the default wallpaper directory to set, as this will prevent the default provided backgrounds from
   // being used 100% of the time in a stock install.
   if (wallpapersDirectory == "/usr/share/backgrounds" || wallpapersDirectory == "/usr/share/backgrounds/") {
-    wallpapersDirectory = "/usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether/src/img/wallpapers/";
+    wallpapersDirectory = getRelativePath("assets/img/wallpapers/");
   }
 
   return wallpapersDirectory;
@@ -52,7 +57,7 @@ export function getLogos() {
 
   // Return a tuple of the path and filename for usage in the Settings dialogue.
   let userLogo = window.config.get_str("branding", "logo");
-  let themeLogos = window.greeterutil.dirlist("/usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether/src/img/logos/");
+  let themeLogos = window.greeterutil.dirlist(getRelativePath("assets/img/logos/"));
 
   themeLogos.push(userLogo);
 

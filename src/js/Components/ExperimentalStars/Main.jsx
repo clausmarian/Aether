@@ -136,7 +136,7 @@ class ExperimentalStars extends React.Component {
 
 
     // Generate sparks
-    let sparkTexture = PIXI.Texture.fromImage('src/img/gl/spark.png');
+    let sparkTexture = PIXI.Texture.fromImage('assets/img/gl/spark.png');
 
     for (let i = 0; i < starCount; i++) {
       // Generate a new self managing particle instance
@@ -157,7 +157,7 @@ class ExperimentalStars extends React.Component {
       }
     }
 
-    //let smoke = PIXI.Sprite.fromImage('src/img/gl/smoke.png');
+    //let smoke = PIXI.Sprite.fromImage('assets/img/gl/smoke.png');
 
     this.application.ticker.add(() => {
       const now = Number(new Date());
