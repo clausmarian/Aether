@@ -13,7 +13,8 @@ export function getWallpaperDirectory() {
     return "src/test/wallpapers/";
   }
 
-  let wallpapersDirectory = window.config.get_str("branding", "background_images");
+  let wallpapersDirectory = window.greeter_config.branding.background_images_dir;
+  //let wallpapersDirectory = window.config.get_str("branding", "background_images");
 
   // Do NOT allow the default wallpaper directory to set, as this will prevent the default provided backgrounds from
   // being used 100% of the time in a stock install.
@@ -34,7 +35,7 @@ export function getWallpapers(directory) {
 
   let wallpapers;
 
-  wallpapers = window.greeterutil.dirlist(directory);
+  wallpapers = window.theme_utils.dirlist_sync(directory, true);
   wallpapers = wallpapers.map((e) => e.split("/").pop());
 
   return wallpapers;
@@ -56,8 +57,8 @@ export function getLogos() {
   }
 
   // Return a tuple of the path and filename for usage in the Settings dialogue.
-  let userLogo = window.config.get_str("branding", "logo");
-  let themeLogos = window.greeterutil.dirlist(getRelativePath("assets/img/logos/"));
+  let userLogo = window.greeter_config.branding.logo;
+  let themeLogos = window.theme_utils.dirlist_sync(getRelativePath("assets/img/logos/"), true);
 
   themeLogos.push(userLogo);
 
