@@ -64,23 +64,26 @@ const UserPicker = props => {
     }
   }; 
 
-  useEffect(() => {
-    // Define functions required in the global scope by LightDM.
-    window.show_prompt = (text, type) => {
-      if (type === 'text') {
+  const getShowPrompt = password => {
+    return (text, type) => {
+      if (text.match(/text/i)) {
         window.notifications.generate(text);
-      } else if (type === 'password') {
-        window.lightdm.respond(state.password);
+      } else if (text.match(/password/i)) {
+        window.lightdm.respond(password);
       }
     };
+  };
 
+  useEffect(() => {
+    // Define functions required in the global scope by LightDM.
+    window.show_prompt = getShowPrompt(state.password); 
     window.show_message = (text, type) => {
       window.notifications.generate(text, type);
     };
 
     window.authentication_complete = () => {
       if (window.lightdm.is_authenticated) {
-        window.lightdm.start_session_sync(props.activeSession.key);
+        window.lightdm.start_session(props.activeSession.key);
       } else {
         rejectPassword();
       }
@@ -93,7 +96,23 @@ const UserPicker = props => {
     // Add a handler for Ctrl+A to prevent selection issues.
     document.onkeydown = onKeyDown.bind(this);
     document.onkeyup = onKeyUp.bind(this);
+
+    if (window.lightdm !== undefined) {
+      window.lightdm.authentication_complete.connect(() => window.authentication_complete());
+      window.lightdm.show_message.connect((text, type) => window.show_message(text, type));
+      window.lightdm.show_prompt.connect((text, type) => window.show_prompt(text, type));
+      window.lightdm.autologin_timer_expired.connect((text, type) => window.autologin_timer_expired());
+    }
   }, []);
+ 
+  useEffect(() => {
+    // Update password in prompt function on state change
+    window.show_prompt = getShowPrompt(state.password);
+    
+    if (window.lightdm !== undefined) {
+      window.lightdm.show_prompt.connect((text, type) => window.show_prompt(text, type));
+    }
+  }, [state]);
 
   const handleLoginSubmit = e => {
     e.preventDefault();
@@ -111,7 +130,7 @@ const UserPicker = props => {
         });
       }
     } else {
-      window.lightdm.authenticate(props.activeUser.username || props.activeUser.name);
+      window.lightdm.authenticate(props.activeUser.username || props.activeUser.display_name);
     }
   };
 
@@ -138,10 +157,11 @@ const UserPicker = props => {
   };
 
   const handlePasswordInput = e =>  {
+    console.log("set password: " + e.target.value);
     setState(old => {
       return {
         ...old,
-        "password": event.target.value
+        "password": e.target.value
       };
     });
   };

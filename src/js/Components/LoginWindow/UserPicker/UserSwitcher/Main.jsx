@@ -66,6 +66,7 @@ const UserSwitcher = props => {
           <UserAvatarImg avatarBackgroundClasses={ avatarBackgroundClasses } image={ user.image } />
           <div className="avatar-name">
             <div className="username">{ user.display_name }</div>
+            <div className="real-name">{ user.username }</div>
           </div>
         </li>
       );

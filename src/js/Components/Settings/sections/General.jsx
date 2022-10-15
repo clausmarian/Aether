@@ -58,7 +58,7 @@ LogoChooser.propTypes = {
 export const GeneralSection = (props) => {
   const settings = props.settings;
   const users = window.lightdm.users
-    .map(e => e.username);
+    .map(e => e.display_name);
 
   return (
     <div className="settings-general">
