@@ -2,3 +2,6 @@
 **/.sass-cache/**
 
 npm-debug.log
+
+out
+dist

@@ -58,9 +58,8 @@ A Sleek, straightforward Archlinux themed login screen written on lightdm and [w
 This assumes that you already have lightdm and web-greeter installed (but not configured).
 
 ```
-# If you prefer the last stable release, download from the releases page instead: https://github.com/clausmarian/Aether/releases/latest
-git clone git@github.com:clausmarian/Aether.git
-sudo cp --recursive Aether /usr/share/web-greeter/themes/lightdm-webkit-theme-aether
+# Download the latest stable release from the releases page: https://github.com/clausmarian/Aether/releases/latest
+sudo cp -r Aether /usr/share/web-greeter/themes/lightdm-webkit-theme-aether
 
 # Set default web-greeter theme to lightdm-webkit-theme-aether
 sudo sed -i 's/^\s*theme\s*:\s*\(.*\)/    theme: lightdm-webkit-theme-aether #\1/g' /etc/lightdm/web-greeter.yml
