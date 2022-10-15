@@ -3,7 +3,7 @@
 // LightDM related file / config fetching.
 
 export function getRelativePath(path="") {
-  return `/usr/share/web-greeter/themes/lightdm-webkit-theme-aether/${ path }`;
+  return  `/usr/share/web-greeter/themes/lightdm-webkit-theme-aether/${ path }`;
 }
 
 
@@ -14,17 +14,24 @@ export function getWallpaperDirectory() {
   }
 
   let wallpapersDirectory = window.greeter_config.branding.background_images_dir;
-  //let wallpapersDirectory = window.config.get_str("branding", "background_images");
 
   // Do NOT allow the default wallpaper directory to set, as this will prevent the default provided backgrounds from
   // being used 100% of the time in a stock install.
-  if (wallpapersDirectory == "/usr/share/backgrounds" || wallpapersDirectory == "/usr/share/backgrounds/") {
+  if (wallpapersDirectory == "/usr/share/backgrounds") {
     wallpapersDirectory = getRelativePath("assets/img/wallpapers/");
   }
 
   return wallpapersDirectory;
 }
 
+
+export const getFilename = path => {
+  if (path == undefined) {
+    return '';
+  }
+
+  return path.split('/').pop();
+};
 
 export async function getWallpapers(directory) {
   // If we're in test mode, we stick to a static rotation of three default wallpapers.
@@ -42,7 +49,7 @@ export async function getWallpapers(directory) {
     });
   });
 
-  return wallpapers.map((e) => e.split("/").pop());
+  return wallpapers.map(getFilename);
 }
 
 
@@ -63,16 +70,16 @@ export async function getLogos() {
   // Return a tuple of the path and filename for usage in the Settings dialogue.
   let userLogo = window.greeter_config.branding.logo;
   let themeLogos = [];
-
+  
   await new Promise(resolve => {
-    window.theme_utils.dirlist("assets/img/logos", true, images => {
+    window.theme_utils.dirlist(getRelativePath("assets/img/logos"), true, images => {
       themeLogos = images;
       resolve();
     });
   });
   themeLogos.push(userLogo);
-
-  return themeLogos.map((e) => [e, e.split("/").pop()]);
+  
+  return themeLogos.map((e) => [e, getFilename(e)]);
 }
 
 
