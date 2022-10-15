@@ -1,6 +1,3 @@
-import { getRelativePath } from '../Logic/FileOperations';
-
-
 export const scale = (start, end, percentage, round) => {
   if (round === undefined) {
     round = true;

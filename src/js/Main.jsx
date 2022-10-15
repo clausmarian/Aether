@@ -42,7 +42,7 @@ window.onload = (e) => {
 
   const init = () => {
     Main();
-    document.getElementById("password-field").focus();
+    //document.getElementById('password-field').focus();
   };
 
   // Horribly convoluted for necessity because reasons

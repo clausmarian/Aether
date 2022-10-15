@@ -21,6 +21,7 @@ const PasswordField = (props) => {
       className={ classes.join(' ') }
       value={ props.password }
       onChange={ props.handlePasswordInput }
+      autoFocus
     />
   );
 };
