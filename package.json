@@ -1,6 +1,6 @@
 {
-  "name": "lightdm-webkit-aether",
-  "version": "1.0.0",
+  "name": "lightdm-webkit-theme-aether",
+  "version": "3.0.0",
   "description": "Elegant LightDM Webkit theme.",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/noisek/Aether.git"
+    "url": "git+https://github.com/clausmarian/Aether.git"
   },
   "keywords": [
     "webkit",
@@ -23,11 +23,11 @@
     "arch"
   ],
   "author": "Noi Sek",
-  "license": "GPL-3.0",
+  "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/noisek/Aether/issues"
+    "url": "https://github.com/clausmarian/Aether/issues"
   },
-  "homepage": "https://github.com/noisek/Aether#readme",
+  "homepage": "https://github.com/clausmarian/Aether#readme",
   "devDependencies": {
     "@babel/cli": "^7.17.10",
     "@babel/core": "^7.17.10",

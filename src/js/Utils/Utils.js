@@ -48,3 +48,5 @@ export const interpolatePoints = (a, b, ratio) => {
 export const getDefaultAvatar = () => {
   return 'assets/img/avatar-default.png';
 };
+
+export const APP_VERSION = '3.0.0';
