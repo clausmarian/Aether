@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import * as PIXI from 'pixi.js';
@@ -37,41 +37,31 @@ const GradientGenerator = (start, end) => {
 };
 
 
-class ExperimentalStars extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {};
-    this.nodes = {};
-
-    // Pixi objects
-    this.application = undefined;
-    this.stars = [];
-    this.sparks = [];
-
-    this.gradientGenerator = undefined;
-  }
-
-
-  componentDidMount() {
-    this.application = new PIXI.Application({
+const ExperimentalStars = props => {
+  const state = useState({
+    'nodes': {},
+    'stars': [],
+    'sparks': []
+  })[0];
+ 
+  useEffect(() => {
+    const application = new PIXI.Application({
       'height': window.innerHeight,
       'width': window.innerWidth,
-      'transparent': true,
-      'resolution': this.props.settings.page_zoom
+      'backgroundAlpha': 0,
+      'resolution': props.settings.page_zoom,
+      'resizeTo': window
     });
 
-    this.application.autoResize = true;
-
-    this.nodes.screen.appendChild(this.application.view);
+    state.nodes.screen.appendChild(application.view);
 
     setTimeout(() => {
-      this.startAnimation();
+      startAnimation(application);
     }, 1000);
-  }
+  }, []);
 
 
-  startAnimation() {
+  const startAnimation = (application) => {
     let circle = new PIXI.Graphics();
 
     circle.beginFill(0xFFFFFF, 1);
@@ -87,7 +77,7 @@ class ExperimentalStars extends React.Component {
     const startColor = 0xd426e0;
     const endColor = 0xed7b39;
 
-    this.gradientGenerator = GradientGenerator(startColor, endColor);
+    const gradientGenerator = GradientGenerator(startColor, endColor);
 
     // Generate stars
     for (let i = 0; i < starCount; i++) {
@@ -130,40 +120,40 @@ class ExperimentalStars extends React.Component {
 
       circleInstance.recycle();
 
-      this.stars.push(circleInstance);
-      this.application.stage.addChild(circleInstance);
+      state.stars.push(circleInstance);
+      application.stage.addChild(circleInstance);
     }
 
 
     // Generate sparks
-    let sparkTexture = PIXI.Texture.fromImage('assets/img/gl/spark.png');
-
+    let sparkTexture = PIXI.Texture.from('assets/img/gl/spark.png');
+   
     for (let i = 0; i < starCount; i++) {
       // Generate a new self managing particle instance
       let options = {
-        'parent': this.stars[i],
+        'parent': state.stars[i],
         'startColor': startColor,
         'endColor': endColor,
         'minDecay': sparkMinDecay,
         'maxDecay': sparkMaxDecay,
         'startScale': sparkStartScale,
         'endScale': sparkEndScale,
-        'gradientGenerator': this.gradientGenerator
+        'gradientGenerator': gradientGenerator
       };
 
       for (let _i = 0; _i < sparkCount; _i++) {
-        this.sparks[i] = this.sparks[i] || [];
-        this.sparks[i].push(new Particle(sparkTexture, this.application, options));
+        state.sparks[i] = state.sparks[i] || [];
+        state.sparks[i].push(new Particle(sparkTexture, application, options));
       }
     }
 
-    //let smoke = PIXI.Sprite.fromImage('assets/img/gl/smoke.png');
+    //let smoke = PIXI.Sprite.from('assets/img/gl/smoke.png');
 
-    this.application.ticker.add(() => {
+    application.ticker.add(() => {
       const now = Number(new Date());
 
-      for (let i = 0; i < this.stars.length; i++) {
-        let currentItem = this.stars[i];
+      for (let i = 0; i < state.stars.length; i++) {
+        let currentItem = state.stars[i];
         let star = currentItem;
 
         if (now > star.startTime) {
@@ -189,16 +179,13 @@ class ExperimentalStars extends React.Component {
         }
       }
     });
-  }
+  };
 
-
-  render() {
-    return ReactDOM.createPortal(
-      <div className="" ref={ (ref) => this.nodes.screen = ref } />,
-      document.getElementById("experimental-mount")
-    );
-  }
-}
+  return ReactDOM.createPortal(
+    <div className="" ref={ (ref) => state.nodes.screen = ref } />,
+    document.getElementById("experimental-mount")
+  );
+};
 
 
 ExperimentalStars.propTypes = {

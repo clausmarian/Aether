@@ -97,7 +97,7 @@ const UserPicker = props => {
     document.onkeydown = onKeyDown.bind(this);
     document.onkeyup = onKeyUp.bind(this);
 
-    if (window.lightdm !== undefined) {
+    if (window.lightdm !== undefined && window.__debug === false) {
       window.lightdm.authentication_complete.connect(() => window.authentication_complete());
       window.lightdm.show_message.connect((text, type) => window.show_message(text, type));
       window.lightdm.show_prompt.connect((text, type) => window.show_prompt(text, type));
@@ -109,7 +109,7 @@ const UserPicker = props => {
     // Update password in prompt function on state change
     window.show_prompt = getShowPrompt(state.password);
     
-    if (window.lightdm !== undefined) {
+    if (window.lightdm !== undefined && window.__debug === false) {
       window.lightdm.show_prompt.connect((text, type) => window.show_prompt(text, type));
     }
   }, [state]);
