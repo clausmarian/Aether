@@ -2,41 +2,58 @@
 // --------------------------------------
 // LightDM related file / config fetching.
 
+export function getRelativePath(path="") {
+  return  `/usr/share/web-greeter/themes/lightdm-webkit-theme-aether/${ path }`;
+}
+
+
 export function getWallpaperDirectory() {
   // Return the test folder when debugging.
   if (window.__debug === true) {
     return "src/test/wallpapers/";
   }
 
-  let wallpapersDirectory = window.config.get_str("branding", "background_images");
+  let wallpapersDirectory = window.greeter_config.branding.background_images_dir;
 
   // Do NOT allow the default wallpaper directory to set, as this will prevent the default provided backgrounds from
   // being used 100% of the time in a stock install.
-  if (wallpapersDirectory == "/usr/share/backgrounds" || wallpapersDirectory == "/usr/share/backgrounds/") {
-    wallpapersDirectory = "/usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether/src/img/wallpapers/";
+  if (wallpapersDirectory == "/usr/share/backgrounds") {
+    wallpapersDirectory = getRelativePath("assets/img/wallpapers/");
   }
 
   return wallpapersDirectory;
 }
 
 
-export function getWallpapers(directory) {
+export const getFilename = path => {
+  if (path == undefined) {
+    return '';
+  }
+
+  return path.split('/').pop();
+};
+
+export async function getWallpapers(directory) {
   // If we're in test mode, we stick to a static rotation of three default wallpapers.
   // In production, it is possible that a user will change what wallpapers are available.
   if (window.__debug === true) {
     return ['boko.jpg', 'mountains-2.png', 'space-1.jpg'];
   }
 
-  let wallpapers;
+  let wallpapers = [];
 
-  wallpapers = window.greeterutil.dirlist(directory);
-  wallpapers = wallpapers.map((e) => e.split("/").pop());
+  await new Promise(resolve => {
+    window.theme_utils.dirlist(directory, true, images => {
+      wallpapers = images;
+      resolve();
+    });
+  });
 
-  return wallpapers;
+  return wallpapers.map(getFilename);
 }
 
 
-export function getLogos() {
+export async function getLogos() {
   // If we're in test mode, just return the default three.
   if (window.__debug === true) {
     return [
@@ -51,12 +68,18 @@ export function getLogos() {
   }
 
   // Return a tuple of the path and filename for usage in the Settings dialogue.
-  let userLogo = window.config.get_str("branding", "logo");
-  let themeLogos = window.greeterutil.dirlist("/usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether/src/img/logos/");
-
+  let userLogo = window.greeter_config.branding.logo;
+  let themeLogos = [];
+  
+  await new Promise(resolve => {
+    window.theme_utils.dirlist(getRelativePath("assets/img/logos"), true, images => {
+      themeLogos = images;
+      resolve();
+    });
+  });
   themeLogos.push(userLogo);
-
-  return themeLogos.map((e) => [e, e.split("/").pop()]);
+  
+  return themeLogos.map((e) => [e, getFilename(e)]);
 }
 
 

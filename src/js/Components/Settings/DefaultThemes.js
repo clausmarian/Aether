@@ -1,5 +1,5 @@
-const ArchCustom = {
-  'user_switcher_enabled': false,
+const Arch2 = {
+  'user_switcher_enabled': true,
   'date_enabled': true,
   'date_format': '<em>%A</em>, <em>%d/%m/%Y</em>',
   'time_enabled': true,
@@ -210,7 +210,7 @@ const Seattle = {
 };
 
 export const DefaultThemes = {
-  ArchCustom,
+  Arch2,
   Arch,
   Default,
   'El Capitan': Capitan,

@@ -32,7 +32,6 @@ export const Dropdown = ({ name, value, options, boundFunction }) => {
   );
 };
 
-
 Dropdown.propTypes = {
   'name': PropTypes.string,
   'value': PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

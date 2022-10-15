@@ -9,7 +9,7 @@ import Checkbox from '../inputs/Checkbox';
 import Dropdown from '../inputs/Dropdown';
 
 
-export const StyleSection = (props) => {
+export const StyleSection = props => {
   const settings = props.settings;
 
   return (
@@ -154,13 +154,11 @@ export const StyleSection = (props) => {
   );
 };
 
-
 StyleSection.propTypes = {
   'settings': PropTypes.object.isRequired,
   'settingsSetValue': PropTypes.func.isRequired,
   'settingsToggleBinary': PropTypes.func.isRequired
 };
-
 
 export default connect(
   (state) => {

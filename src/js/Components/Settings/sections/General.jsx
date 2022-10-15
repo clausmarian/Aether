@@ -3,7 +3,7 @@
 // Basic distro / visibility / date & time formatting settings.
 
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { connect } from 'react-redux';
 
@@ -20,10 +20,13 @@ const onLogoChange = (props, e) => {
   });
 };
 
-
-const LogoChooser = (props) => {
-  let logos = FileOperations.getLogos();
+const LogoChooser = props => {
+  const [logos, setLogos] = useState([]);   
   let activeLogo = props.settings.distro;
+
+  useEffect(() => {
+    (async () => setLogos(await FileOperations.getLogos()))();
+  }, []);
 
   let items = logos.map((e) => {
     let [path, fileName] = e;
@@ -48,16 +51,14 @@ const LogoChooser = (props) => {
   );
 };
 
-
 LogoChooser.propTypes = {
   'settings': PropTypes.object.isRequired
 };
 
-
 export const GeneralSection = (props) => {
   const settings = props.settings;
   const users = window.lightdm.users
-    .map(e => e.name);
+    .map(e => e.display_name);
 
   return (
     <div className="settings-general">
@@ -153,13 +154,11 @@ export const GeneralSection = (props) => {
   );
 };
 
-
 GeneralSection.propTypes = {
   'settings': PropTypes.object.isRequired,
   'settingsSetValue': PropTypes.func.isRequired,
   'settingsToggleBinary': PropTypes.func.isRequired
 };
-
 
 export default connect(
   (state) => {

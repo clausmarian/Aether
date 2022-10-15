@@ -21,16 +21,15 @@ const PasswordField = (props) => {
       className={ classes.join(' ') }
       value={ props.password }
       onChange={ props.handlePasswordInput }
+      autoFocus
     />
   );
 };
-
 
 PasswordField.propTypes = {
   'password': PropTypes.string.isRequired,
   'passwordFailed': PropTypes.bool.isRequired,
   'handlePasswordInput': PropTypes.func.isRequired
 };
-
 
 export default PasswordField;

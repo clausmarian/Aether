@@ -22,13 +22,11 @@ export const TextField = ({ name, value, disabled, boundFunction }) => {
   );
 };
 
-
 TextField.propTypes = {
   'name': PropTypes.string.isRequired,
   'disabled': PropTypes.bool,
   'value': PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   'boundFunction': PropTypes.func.isRequired
 };
-
 
 export default TextField;
