@@ -8,43 +8,34 @@ import cxs from "cxs";
 
 const ANIMATION_DURATION = 100;
 
-
-class SessionItem extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  handleClick(e) {
+const SessionItem = props => {
+  const handleClick = (e) => {
     e.preventDefault();
-    this.props.handleClick(this.props.session.key);
-  }
+    props.handleClick(props.session.key);
+  };
 
-  render() {
-    let classes = ['login-session-item'];
+  let classes = ['login-session-item'];
+  classes.push(cxs({
+    "color": props.buttonTextColor,
+    "background-color": props.buttonBackgroundColor,
+    "animation-delay": `${ props.index * ANIMATION_DURATION }ms !important`
+  }));
 
-    classes.push(cxs({
-      "color":  this.props.buttonTextColor,
-      "background-color": this.props.buttonBackgroundColor,
-      "animation-delay": `${ this.props.index * ANIMATION_DURATION }ms !important`
-    }));
-
-    return (
-      <div className="_transform-wrapper">
-        <div className={ classes.join(' ') } onClick={ this.handleClick.bind(this) }>
-          <div className='text'>{ this.props.session.name }</div>
-        </div>
+  return (
+    <div className="_transform-wrapper">
+      <div className={ classes.join(' ') } onClick={ handleClick.bind(this) }>
+        <div className='text'>{ props.session.name }</div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 SessionItem.propTypes = {
   'buttonBackgroundColor': PropTypes.string.isRequired,
   'buttonTextColor': PropTypes.string.isRequired,
   'session': PropTypes.object.isRequired,
   'handleClick': PropTypes.func.isRequired,
-  'index': PropTypes.number.isRequired,
-  'settings': PropTypes.object.isRequired
+  'index': PropTypes.number.isRequired
 };
 
 export default SessionItem;

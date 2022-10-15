@@ -14,7 +14,6 @@ const toggleSettings = (props) => {
   });
 };
 
-
 export const SettingsToggler = (props) => {
   let classes = ['settings-toggler'];
 
@@ -28,7 +27,6 @@ export const SettingsToggler = (props) => {
     document.getElementById("settings-toggler-mount")
   );
 };
-
 
 export default connect(
   (state) => { return {}; },

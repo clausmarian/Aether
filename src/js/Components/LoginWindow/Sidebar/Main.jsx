@@ -15,14 +15,9 @@ import Clock from './Clock';
 import List from './List';
 
 
-class Sidebar extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-
-  handleCommand(command, disabled, event) {
-    event.preventDefault();
+const Sidebar = props => { 
+  const handleCommand = (command, disabled, e) => {
+    e.preventDefault();
 
     if (disabled !== false) {
       window.notifications.generate(`${ command } is disabled on this system.`, "error");
@@ -30,15 +25,14 @@ class Sidebar extends React.Component {
     }
 
     SystemOperations.handleCommand(command);
-  }
+  };
 
-
-  getEnabledCommands() {
+  const getEnabledCommands = () => {
     let commands = {
-      "Shutdown": (window.lightdm.can_shutdown && this.props.settings.command_shutdown_enabled),
-      "Reboot": (window.lightdm.can_restart && this.props.settings.command_reboot_enabled),
-      "Hibernate": (window.lightdm.can_hibernate && this.props.settings.command_hibernate_enabled),
-      "Sleep": (window.lightdm.can_suspend && this.props.settings.command_sleep_enabled)
+      "Shutdown": (window.lightdm.can_shutdown && props.settings.command_shutdown_enabled),
+      "Reboot": (window.lightdm.can_restart && props.settings.command_reboot_enabled),
+      "Hibernate": (window.lightdm.can_hibernate && props.settings.command_hibernate_enabled),
+      "Sleep": (window.lightdm.can_suspend && props.settings.command_sleep_enabled)
     };
 
     // Filter out commands we can't execute.
@@ -55,47 +49,42 @@ class Sidebar extends React.Component {
     }
 
     return enabledCommands;
+  };
+
+  let settings = props.settings;
+
+  let hostname = window.lightdm.hostname;
+  let hostnameClasses = ['left', 'hostname'];
+  let hostNameDisabled = (settings.hostname_enabled === false);
+
+  let commands = getEnabledCommands();
+
+  if (hostNameDisabled) {
+    hostnameClasses.push('invisible');
   }
 
+  let styles = cxs({
+    'background': settings.style_command_background_color
+  });
 
-  render() {
-    let settings = this.props.settings;
-
-    let hostname = window.lightdm.hostname;
-    let hostnameClasses = ['left', 'hostname'];
-    let hostNameDisabled = (settings.hostname_enabled === false);
-
-    let commands = this.getEnabledCommands();
-
-    if (hostNameDisabled) {
-      hostnameClasses.push('invisible');
-    }
-
-    let styles = cxs({
-      'background': settings.style_command_background_color
-    });
-
-    return (
-      <div className={ `command-panel ${ styles }` }>
-        <WallpaperSwitcher />
-        <List
-          enabledCommands={ commands }
-          handleCommand={ this.handleCommand.bind(this) }
-        />
-        <div className="bottom">
-          <div className={ hostnameClasses.join(' ') }>{ hostname }</div>
-          <Clock />
-        </div>
+  return (
+    <div className={ `command-panel ${ styles }` }>
+      <WallpaperSwitcher />
+      <List
+        enabledCommands={ commands }
+        handleCommand={ handleCommand.bind(this) }
+      />
+      <div className="bottom">
+        <div className={ hostnameClasses.join(' ') }>{ hostname }</div>
+        <Clock />
       </div>
-    );
-  }
-}
-
+    </div>
+  );
+};
 
 Sidebar.propTypes = {
   'settings': PropTypes.object.isRequired
 };
-
 
 export default connect(
   (state) => {

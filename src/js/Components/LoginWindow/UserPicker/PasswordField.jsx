@@ -25,12 +25,10 @@ const PasswordField = (props) => {
   );
 };
 
-
 PasswordField.propTypes = {
   'password': PropTypes.string.isRequired,
   'passwordFailed': PropTypes.bool.isRequired,
   'handlePasswordInput': PropTypes.func.isRequired
 };
-
 
 export default PasswordField;

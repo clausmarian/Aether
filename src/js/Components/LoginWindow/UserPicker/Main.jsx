@@ -3,7 +3,7 @@
 // The login management half of the greeter logic.
 
 import cxs from 'cxs';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
@@ -12,6 +12,8 @@ import UserSwitchButton from './UserSwitcher/UserSwitchButton';
 import UserSwitcher from './UserSwitcher';
 import UserPanelForm from './Form';
 
+import { getAvatarOrDefault } from '../../../Utils/Utils';
+
 const FADE_IN_DURATION = 200;
 const ERROR_SHAKE_DURATION = 600;
 
@@ -19,65 +21,28 @@ const CTRL_KEYCODE = 17;
 const A_KEYCODE = 65;
 
 
-class UserPicker extends React.Component {
-  constructor(props) {
-    super(props);
+const UserPicker = props => {
+  const [state, setState] = useState({
+    "fadeIn": false,
+    "password": "",
+    "passwordFailed": false,
+    "switcherActive": false,
+  });
 
-    this.state = {
-      "fadeIn": false,
-      "password": "",
-      "passwordFailed": false,
-      "switcherActive": false,
-    };
-
-    this.CTRL_Pressed = false;
-    this.A_Pressed = false;
-  }
-
-
-  componentDidMount() {
-    // Define functions required in the global scope by LightDM.
-    window.show_prompt = (text, type) => {
-      if (type === 'text') {
-        window.notifications.generate(text);
-      } else if (type === 'password') {
-        window.lightdm.respond(this.state.password);
-      }
-    };
-
-    window.show_message = (text, type) => {
-      window.notifications.generate(text, type);
-    };
-
-    window.authentication_complete = () => {
-      if (window.lightdm.is_authenticated) {
-        window.lightdm.start_session_sync(this.props.activeSession.key);
-      } else {
-        this.rejectPassword();
-      }
-    };
-
-    window.autologin_timer_expired = () => {
-      window.notifications.generate("Autologin expired.");
-    };
-
-    // Add a handler for Ctrl+A to prevent selection issues.
-    document.onkeydown = this.onKeyDown.bind(this);
-    document.onkeyup = this.onKeyUp.bind(this);
-  }
-
-
-  onKeyDown(e) {
+  let CTRL_Pressed = false;
+  let A_Pressed = false;
+ 
+  const onKeyDown = e => {
     if (e.keyCode === CTRL_KEYCODE) {
-      this.CTRL_Pressed = true;
+      CTRL_Pressed = true;
     }
 
     if (e.keyCode === A_KEYCODE) {
-      this.A_Pressed = true;
+      A_Pressed = true;
     }
 
-    if (this.CTRL_Pressed && this.A_Pressed) {
-      if (this.props.settings.active) {
+    if (CTRL_Pressed && A_Pressed) {
+      if (props.settings.active) {
         return;
       }
 
@@ -87,182 +52,225 @@ class UserPicker extends React.Component {
       target.focus();
       target.select();
     }
-  }
+  };
 
-
-  onKeyUp(e) {
+  const onKeyUp = e => {
     if (e.keyCode === CTRL_KEYCODE) {
-      this.CTRL_Pressed = false;
+      CTRL_Pressed = false;
     }
 
     if (e.keyCode === A_KEYCODE) {
-      this.A_Pressed = false;
+      A_Pressed = false;
     }
-  }
+  }; 
 
+  useEffect(() => {
+    // Define functions required in the global scope by LightDM.
+    window.show_prompt = (text, type) => {
+      if (type === 'text') {
+        window.notifications.generate(text);
+      } else if (type === 'password') {
+        window.lightdm.respond(state.password);
+      }
+    };
 
-  handleLoginSubmit(event) {
-    event.preventDefault();
+    window.show_message = (text, type) => {
+      window.notifications.generate(text, type);
+    };
+
+    window.authentication_complete = () => {
+      if (window.lightdm.is_authenticated) {
+        window.lightdm.start_session_sync(props.activeSession.key);
+      } else {
+        rejectPassword();
+      }
+    };
+
+    window.autologin_timer_expired = () => {
+      window.notifications.generate("Autologin expired.");
+    };
+
+    // Add a handler for Ctrl+A to prevent selection issues.
+    document.onkeydown = onKeyDown.bind(this);
+    document.onkeyup = onKeyUp.bind(this);
+  }, []);
+
+  const handleLoginSubmit = e => {
+    e.preventDefault();
 
     if (window.__debug === true) {
-      if (this.state.password.toLowerCase() !== 'password') {
-        this.rejectPassword();
+      if (state.password.toLowerCase() !== 'password') {
+        rejectPassword();
       } else {
-        window.notifications.generate(`You are now logged in as ${ this.props.activeUser.display_name } to ${ this.props.activeSession.name }.`, 'success');
-        this.setState({
-          "password": ""
+        window.notifications.generate(`You are now logged in as ${ props.activeUser.display_name } to ${ props.activeSession.name }.`, 'success');
+        setState(old => { 
+          return {
+            ...old,
+            "password": ""
+          };
         });
       }
+    } else {
+      window.lightdm.authenticate(props.activeUser.username || props.activeUser.name);
     }
+  };
 
-    else {
-      window.lightdm.authenticate(this.props.activeUser.username || this.props.activeUser.name);
-    }
-  }
-
-
-  handleSwitcherClick(event) {
+  const handleSwitcherClick = e => {
     if (window.lightdm.users.length < 2) {
       window.notifications.generate("You are the only user that is able to log in on this system.", 'error');
       return false;
     } else if (window.lightdm.users.length === 2) {
       // No point in showing them the switcher if there is only one other user. Switch immediately.
       let otherUser = window.lightdm.users.filter((user) => {
-        return user.username !== this.props.activeUser.username;
+        return user.username !== props.activeUser.username;
       })[0];
 
-      this.setActiveUser(otherUser, true);
+      setActiveUser(otherUser, true);
       window.notifications.generate("User has been automatically switched to the only other user on this system.");
     } else {
-      this.setState({
-        "switcherActive": true
+      setState(old => {
+        return {
+          ...old,
+          "switcherActive": true
+        };
       });
     }
-  }
+  };
 
-
-  handlePasswordInput(event) {
-    this.setState({
-      "password": event.target.value
+  const handlePasswordInput = e =>  {
+    setState(old => {
+      return {
+        ...old,
+        "password": event.target.value
+      };
     });
-  }
+  };
 
-
-  setActiveSession(session) {
-    this.props.dispatch({
+  const setActiveSession = session => {
+    props.dispatch({
       'type': 'AUTH_SET_ACTIVE_SESSION',
       'session': session
     });
-  }
+  };
 
-
-  setActiveUser(user, isBypass) {
-    this.props.dispatch({
+  const setActiveUser = (user, isBypass) => {
+    props.dispatch({
       "type": 'AUTH_SET_ACTIVE_USER',
       "user": user
     });
 
     // Fade in, except when switching between 1 of 2 users.
     if (isBypass === false || isBypass === undefined) {
-      this.setState({
-        "fadeIn": true,
-        "switcherActive": false
+      setState(old => {
+        return {
+          ...old,
+          "fadeIn": true,
+          "switcherActive": false
+        };
       });
 
       setTimeout(() => {
-        this.setState({
-          "fadeIn": false
+        setState(old => {
+          return {
+            ...old,
+            "fadeIn": false
+          };
         });
       }, FADE_IN_DURATION);
     } else {
-      this.setState({
-        "switcherActive": false
+      setState(old => {
+        return {
+          ...old,
+          "switcherActive": false
+        };
       });
     }
-  }
+  };
 
-
-  rejectPassword() {
+  const rejectPassword = () => {
     window.notifications.generate("Password incorrect, please try again.", 'error');
 
-    this.setState({
-      "password": "",
-      "passwordFailed": true
+    setState(old => {
+      return {
+        ...old,
+        "password": "",
+        "passwordFailed": true
+      };
     });
 
     setTimeout(() => {
-      this.setState({
-        "passwordFailed": false
+      setState(old => {
+        return {
+          ...old,
+          "passwordFailed": false
+        };
       });
     }, ERROR_SHAKE_DURATION);
+  };
+
+  
+  let loginPanelClasses = ['login-panel-main'];
+  let avatarClasses = ['avatar-container'];
+  let avatarBackgroundClasses = ['avatar-background'];
+  let settings = props.settings;
+
+  if (state.fadeIn === true) {
+    loginPanelClasses.push('fadein');
   }
 
+  if (state.switcherActive === true) {
+    loginPanelClasses.push('fadeout');
+  }
 
-  render() {
-    let loginPanelClasses = ['login-panel-main'];
-    let avatarClasses = ['avatar-container'];
-    let avatarBackgroundClasses = ['avatar-background'];
-    let settings = this.props.settings;
+  if (settings.avatar_enabled === false) {
+    avatarClasses.push('invisible');
+  }
 
-    if (this.state.fadeIn === true) {
-      loginPanelClasses.push('fadein');
-    }
+  if (settings.avatar_background_enabled === false) {
+    avatarBackgroundClasses.push('avatar-background-hidden');
+  }
 
-    if (this.state.switcherActive === true) {
-      loginPanelClasses.push('fadeout');
-    }
+  let _styles = {
+    "background": `linear-gradient(to bottom, ${ settings.style_login_gradient_top_color } 0%, ${ settings.style_login_gradient_bottom_color } 100%)`,
+    "border-color": settings.style_login_border_color
+  };
 
-    if (settings.avatar_enabled === false) {
-      avatarClasses.push('invisible');
-    }
+  if (settings.style_login_border_enabled === false) {
+    _styles['border'] = 'none !important';
+  }
 
-    if (settings.avatar_background_enabled === false) {
-      avatarBackgroundClasses.push('avatar-background-hidden');
-    }
+  let style = cxs(_styles);
 
-    let _styles = {
-      "background": `linear-gradient(to bottom, ${ settings.style_login_gradient_top_color } 0%, ${ settings.style_login_gradient_bottom_color } 100%)`,
-      "border-color": settings.style_login_border_color
-    };
-
-    if (settings.style_login_border_enabled === false) {
-      _styles['border'] = 'none !important';
-    }
-
-    let style = cxs(_styles);
-
-    return (
-      <div className={ `user-panel ${ style }` }>
-        <div className={ loginPanelClasses.join(' ') }>
-          <div className={ avatarClasses.join(' ') }>
-            <div className= { avatarBackgroundClasses.join(' ') }>
-              <div className="avatar-mask">
-                <img className="user-avatar" src={ this.props.activeUser.image } />
-              </div>
+  return (
+    <div className={ `user-panel ${ style }` }>
+      <div className={ loginPanelClasses.join(' ') }>
+        <div className={ avatarClasses.join(' ') }>
+          <div className= { avatarBackgroundClasses.join(' ') }>
+            <div className="avatar-mask">
+              <img className="user-avatar" src={ getAvatarOrDefault(props.activeUser.image) } />
             </div>
           </div>
-          <UserPanelForm
-            password={ this.state.password }
-            passwordFailed={ this.state.passwordFailed }
-            handleLoginSubmit={ this.handleLoginSubmit.bind(this) }
-            handlePasswordInput={ this.handlePasswordInput.bind(this) }
-            setActiveSession={ this.setActiveSession.bind(this) }
-          />
-          <div className="bottom">
-            <If condition={ settings.user_switcher_enabled }>
-              <UserSwitchButton handleSwitcherClick={ this.handleSwitcherClick.bind(this) } />
-            </If>
-          </div>
         </div>
-        <UserSwitcher
-          active={ this.state.switcherActive }
-          setActiveUser={ this.setActiveUser.bind(this) }
+        <UserPanelForm
+          password={ state.password }
+          passwordFailed={ state.passwordFailed }
+          handleLoginSubmit={ handleLoginSubmit.bind(this) }
+          handlePasswordInput={ handlePasswordInput.bind(this) }
+          setActiveSession={ setActiveSession.bind(this) }
         />
+        <div className="bottom">
+          <If condition={ settings.user_switcher_enabled }>
+            <UserSwitchButton handleSwitcherClick={ handleSwitcherClick.bind(this) } />
+          </If>
+        </div>
       </div>
-    );
-  }
-}
-
+      <UserSwitcher
+        active={ state.switcherActive }
+        setActiveUser={ setActiveUser.bind(this) }
+      />
+    </div>
+  );  
+};
 
 UserPicker.propTypes = {
   'dispatch': PropTypes.func.isRequired,
@@ -270,7 +278,6 @@ UserPicker.propTypes = {
   'activeUser': PropTypes.object.isRequired,
   'activeSession': PropTypes.object.isRequired
 };
-
 
 export default connect(
   (state) => {

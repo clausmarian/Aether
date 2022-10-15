@@ -20,8 +20,7 @@ const onLogoChange = (props, e) => {
   });
 };
 
-
-const LogoChooser = (props) => {
+const LogoChooser = props => {
   let logos = FileOperations.getLogos();
   let activeLogo = props.settings.distro;
 
@@ -48,16 +47,14 @@ const LogoChooser = (props) => {
   );
 };
 
-
 LogoChooser.propTypes = {
   'settings': PropTypes.object.isRequired
 };
 
-
 export const GeneralSection = (props) => {
   const settings = props.settings;
   const users = window.lightdm.users
-    .map(e => e.name);
+    .map(e => e.username);
 
   return (
     <div className="settings-general">
@@ -153,13 +150,11 @@ export const GeneralSection = (props) => {
   );
 };
 
-
 GeneralSection.propTypes = {
   'settings': PropTypes.object.isRequired,
   'settingsSetValue': PropTypes.func.isRequired,
   'settingsToggleBinary': PropTypes.func.isRequired
 };
-
 
 export default connect(
   (state) => {

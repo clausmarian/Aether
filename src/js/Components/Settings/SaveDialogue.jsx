@@ -4,21 +4,19 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 
-const rejectSettings = (props) => {
+const rejectSettings = props => {
   props.dispatch({
     'type': "SETTINGS_REJECT"
   });
 };
 
-
-const saveSettings = (props) => {
+const saveSettings = props => {
   props.dispatch({
     'type': "SETTINGS_SAVE"
   });
 };
 
-
-export const SaveDialogue = (props) => {
+export const SaveDialogue = props => {
   return (
     <div className="save-dialogue">
       <button className="settings-reject" onClick={ rejectSettings.bind(this, props) } >revert</button>
@@ -27,11 +25,9 @@ export const SaveDialogue = (props) => {
   );
 };
 
-
 SaveDialogue.propTypes = {
   'dispatch': PropTypes.func.isRequired
 };
-
 
 export default connect(
   (state) => {

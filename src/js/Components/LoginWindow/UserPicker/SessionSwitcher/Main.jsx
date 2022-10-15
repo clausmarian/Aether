@@ -9,54 +9,48 @@ import SessionItem from './SessionItem';
 import { connect } from 'react-redux';
 
 
-class SessionSelector extends React.Component {
-  constructor(props) {
-    super(props);
+const SessionSelector = props => {
+  const handleClick = (sessionKey) => {
+    props.setActiveSession(sessionKey);
+    props.close();
+  };
+
+  // Sort by active, then alphabetical.
+  // Then filter out duplicate entries
+  // Doing this requires using sort in reverse.
+  let classes = ['login-session-switcher'];
+
+  if (props.active) {
+    classes.push('active');
   }
 
-  handleClick(sessionKey) {
-    this.props.setActiveSession(sessionKey);
-    this.props.close();
+  if (window.lightdm.sessions.length < 4) {
+    classes.push('no-justify');
   }
 
-  render() {
-    // Sort by active, then alphabetical.
-    // Then filter out duplicate entries
-    // Doing this requires using sort in reverse.
-    let classes = ['login-session-switcher'];
+  let rows = (
+    window.lightdm.sessions
+      .sort((a, b) => {
+        return a.name.toUpperCase() > b.name.toUpperCase();
+      })
+      .map((session, index) => (
+        <SessionItem
+          key={ session.key }
+          session={ session }
+          buttonBackgroundColor={ props.buttonBackgroundColor }
+          buttonTextColor={ props.buttonTextColor }
+          handleClick={ handleClick.bind(this) }
+          index={ index }
+        />
+      ))
+  );
 
-    if (this.props.active) {
-      classes.push('active');
-    }
-
-    if (window.lightdm.sessions.length < 4) {
-      classes.push('no-justify');
-    }
-
-    let rows = (
-      window.lightdm.sessions
-        .sort((a, b) => {
-          return a.name.toUpperCase() > b.name.toUpperCase();
-        })
-        .map((session, index) => (
-          <SessionItem
-            key={ session.key }
-            session={ session }
-            buttonBackgroundColor={ this.props.buttonBackgroundColor }
-            buttonTextColor={ this.props.buttonTextColor }
-            handleClick={ this.handleClick.bind(this) }
-            index={ index }
-          />
-        ))
-    );
-
-    return (
-      <div className={ classes.join(' ') }>
-        { rows }
-      </div>
-    );
-  }
-}
+  return (
+    <div className={ classes.join(' ') }>
+      { rows }
+    </div>
+  );
+};
 
 SessionSelector.propTypes = {
   'setActiveSession': PropTypes.func.isRequired,
@@ -65,7 +59,6 @@ SessionSelector.propTypes = {
   'buttonTextColor': PropTypes.string.isRequired,
   'active': PropTypes.bool.isRequired,
 };
-
 
 export default connect(
   (state) => {

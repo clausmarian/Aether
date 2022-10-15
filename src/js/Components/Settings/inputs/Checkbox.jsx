@@ -25,12 +25,10 @@ export const Checkbox = ({ name, value, boundFunction }) => {
   );
 };
 
-
 Checkbox.propTypes = {
   'name': PropTypes.string.isRequired,
   'value': PropTypes.bool.isRequired,
   'boundFunction': PropTypes.func.isRequired
 };
-
 
 export default Checkbox;

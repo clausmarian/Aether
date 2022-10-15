@@ -2,7 +2,7 @@
 // --------------------------------------
 // Handles greeter configuration.
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Draggable from 'draggable';
 import PropTypes from 'prop-types';
@@ -19,22 +19,17 @@ import { setPageZoom } from 'Utils/Utils';
 
 const SETTINGS_HEIGHT = 300;
 const SETTINGS_WIDTH = 600;
+let settingsHandle = undefined;
 
+const Settings = props => {
+  const [state, setState] = useState({
+    "active": props.settings.active,
+    "selectedCategory": 'general'
+  });
 
-class Settings extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      "active": this.props.settings.active,
-      "selectedCategory": 'general',
-    };
-  }
-
-
-  componentDidMount() {
+  useEffect(() => {
     let draggable = new Draggable(document.getElementById("settings"), {
-      "handle": this.handle
+      "handle": settingsHandle
     });
 
     let centerX = ((window.innerWidth - SETTINGS_WIDTH) / 2);
@@ -43,58 +38,55 @@ class Settings extends React.Component {
     draggable.set(centerX, centerY);
 
     // Set default zoom
-    let defaultZoom = this.props.settings.page_zoom;
+    let defaultZoom = props.settings.page_zoom;
     setPageZoom(defaultZoom);
-  }
+  }, []);
 
-
-  handleCategoryClick(category, e) {
-    this.setState({
-      "selectedCategory": category.toLowerCase()
+  const handleCategoryClick = (category, e) => {
+    setState(old => {
+      return {
+        ...old,
+        "selectedCategory": category.toLowerCase()
+      };
     });
-  }
+  };
 
-
-  handleSettingsBinary(name) {
-    this.props.dispatch({
+  const handleSettingsBinary = name => {
+    props.dispatch({
       "type": 'SETTINGS_TOGGLE_VALUE',
       "name": name
     });
-  }
+  };
 
-
-  handleSettingsClose() {
-    this.props.dispatch({
+  const handleSettingsClose = () => {
+    props.dispatch({
       "type": 'SETTINGS_TOGGLE_ACTIVE'
     });
-  }
+  };
 
-
-  handleSettingsMinimize() {
-    this.props.dispatch({
+  const handleSettingsMinimize = () => {
+    props.dispatch({
       "type": 'SETTINGS_WINDOW_MINIMIZE'
     });
-  }
+  };
 
-
-  handleSettingsText(name, event) {
+  const handleSettingsText = (name, e) => {
     let value;
 
     try {
-      value = event.target.value;
+      value = e.target.value;
     } catch (err) {
-      value = event;
+      value = e;
     }
 
-    this.props.dispatch({
+    props.dispatch({
       "type": 'SETTINGS_SET_VALUE',
       "name": name,
       "value": value
     });
-  }
+  };
 
-
-  generateCategories() {
+  const generateCategories = () => {
     let categories = [
       'General',
       'Style',
@@ -104,12 +96,12 @@ class Settings extends React.Component {
     let listItems = categories.map((category) => {
       let classes = [];
 
-      if (category.toLowerCase() === this.state.selectedCategory) {
+      if (category.toLowerCase() === state.selectedCategory) {
         classes.push('active');
       }
 
       return (
-        <li key={ category } className={ classes.join(' ') } onClick={ this.handleCategoryClick.bind(this, category) }>
+        <li key={ category } className={ classes.join(' ') } onClick={ handleCategoryClick.bind(this, category) }>
           { category }
         </li>
       );
@@ -120,14 +112,13 @@ class Settings extends React.Component {
         { listItems }
       </ul>
     );
-  }
+  };
 
-
-  generateSection(_category) {
+  const generateSection = _category => {
     let category = _category.toLowerCase();
     let componentProps = {
-      "settingsToggleBinary": this.handleSettingsBinary.bind(this),
-      "settingsSetValue": this.handleSettingsText.bind(this)
+      "settingsToggleBinary": handleSettingsBinary.bind(this),
+      "settingsSetValue": handleSettingsText.bind(this)
     };
 
     if (category === "general") {
@@ -137,40 +128,35 @@ class Settings extends React.Component {
     } else if (category === "themes") {
       return (<SectionThemes { ...componentProps } />);
     }
-  }
+  };
 
+  let categories = generateCategories();
+  let section = generateSection(state.selectedCategory);
 
-  render() {
-    let categories = this.generateCategories();
-    let section = this.generateSection(this.state.selectedCategory);
-
-    return ReactDOM.createPortal(
-      <div>
-        <div className="settings-handle" ref={ (node) => this.handle = node }>
-          <ul>
-            <li className="settings-minimize" onClick={ this.handleSettingsMinimize.bind(this) }>&#8722;</li>
-            <li className="settings-close" onClick={ this.handleSettingsClose.bind(this) }>&#215;</li>
-          </ul>
-        </div>
-        <div className="settings-categories">
-          { categories }
-        </div>
-        <div className="settings-section">
-          { section }
-          <SaveDialogue />
-        </div>
-      </div>,
-      document.getElementById("settings")
-    );
-  }
-}
-
+  return ReactDOM.createPortal(
+    <div>
+      <div className="settings-handle" ref={ node => settingsHandle = node }>
+        <ul>
+          <li className="settings-minimize" onClick={ handleSettingsMinimize.bind(this) }>&#8722;</li>
+          <li className="settings-close" onClick={ handleSettingsClose.bind(this) }>&#215;</li>
+        </ul>
+      </div>
+      <div className="settings-categories">
+        { categories }
+      </div>
+      <div className="settings-section">
+        { section }
+        <SaveDialogue />
+      </div>
+    </div>,
+    document.getElementById("settings")
+  );
+};
 
 Settings.propTypes = {
   'dispatch': PropTypes.func.isRequired,
   'settings': PropTypes.object.isRequired
 };
-
 
 export default connect(
   (state) => {

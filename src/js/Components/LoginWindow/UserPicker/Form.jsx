@@ -4,7 +4,7 @@
 // user input for the authentication process.
 
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState } from 'react';
 import cxs from 'cxs';
 
 import { connect } from 'react-redux';
@@ -17,100 +17,93 @@ const submitIcon = require('img/arrow.svg');
 const dropdownIcon = require('img/dropdown-caret.svg');
 
 
-class UserPanelForm extends React.Component {
-  constructor(props) {
-    super(props);
+const UserPanelForm = props => {
+  const [state, setState] = useState({
+    'sessionSwitcherActive': false,
+    'enableAnimation': false
+  });
 
-    this.state = {
-      'sessionSwitcherActive': false,
-      'enableAnimation': false
-    };
-  }
-
-  toggleSessionSwitcher() {
-    this.setState({
-      'sessionSwitcherActive': !this.state.sessionSwitcherActive,
+  const toggleSessionSwitcher = () => {
+    setState({
+      'sessionSwitcherActive': !state.sessionSwitcherActive,
       'enableAnimation': true
     });
+  };
+
+  const textTransformDict = {
+    'default': 'initial',
+    'uppercase': 'uppercase',
+    'lowercase': 'lowercase',
+    'capitalize': 'capitalize'
+  };
+
+  const textTransformStyle = props.settings.style_login_username_capitalization;
+
+  let usernameClasses = ['user-username'];
+  usernameClasses.push(cxs({
+    "color": props.settings.style_login_username_color,
+    "font-style": (props.settings.style_login_username_italic) ? 'italic' : 'initial',
+    "font-weight": (props.settings.style_login_username_bold) ? 'bold' : 'initial',
+    "text-transform": textTransformDict[textTransformStyle.toLowerCase()]
+  }));
+
+  let submitButtonWrapperClasses = cxs({ "background-color": props.settings.style_login_button_color });
+
+  let submitButtonClasses = ['submit-button'];
+  submitButtonClasses.push(cxs({
+    "color": props.settings.style_login_button_text_color
+  }));
+
+  let dropdownCaretWrapperClasses = cxs({ "color": props.settings.style_login_button_text_color });
+
+  let sessionSelectButtonClasses = ['left', 'session-select'];
+  sessionSelectButtonClasses.push(cxs({
+    "background-color": props.settings.style_login_button_color,
+    "color": props.settings.style_login_button_text_color
+  }));
+
+  let inputContainerClasses = ['user-input-container'];
+
+  if (!state.enableAnimation) {
+    inputContainerClasses.push('animation-enabled');
   }
 
-  render() {
-    const textTransformDict = {
-      'default': 'initial',
-      'uppercase': 'uppercase',
-      'lowercase': 'lowercase',
-      'capitalize': 'capitalize'
-    };
+  if (state.sessionSwitcherActive) {
+    inputContainerClasses.push('animate-out');
+  }
 
-    const textTransformStyle = this.props.settings.style_login_username_capitalization;
-
-    let usernameClasses = ['user-username'];
-    usernameClasses.push(cxs({
-      "color": this.props.settings.style_login_username_color,
-      "font-style": (this.props.settings.style_login_username_italic) ? 'italic' : 'initial',
-      "font-weight": (this.props.settings.style_login_username_bold) ? 'bold' : 'initial',
-      "text-transform": textTransformDict[textTransformStyle.toLowerCase()]
-    }));
-
-    let submitButtonWrapperClasses = cxs({ "background-color": this.props.settings.style_login_button_color });
-
-    let submitButtonClasses = ['submit-button'];
-    submitButtonClasses.push(cxs({
-      "color": this.props.settings.style_login_button_text_color
-    }));
-
-    let dropdownCaretWrapperClasses = cxs({ "color": this.props.settings.style_login_button_text_color });
-
-    let sessionSelectButtonClasses = ['left', 'session-select'];
-    sessionSelectButtonClasses.push(cxs({
-      "background-color": this.props.settings.style_login_button_color,
-      "color": this.props.settings.style_login_button_text_color
-    }));
-
-    let inputContainerClasses = ['user-input-container'];
-
-    if (!this.state.enableAnimation) {
-      inputContainerClasses.push('animation-enabled');
-    }
-
-    if (this.state.sessionSwitcherActive) {
-      inputContainerClasses.push('animate-out');
-    }
-
-    return (
-      <form className="login-form" onSubmit={ this.props.handleLoginSubmit }>
-        <div className={ usernameClasses.join(" ") }>{ this.props.activeUser.display_name }</div>
-        <div className={ inputContainerClasses.join(' ') }>
-          <div className="user-password-container">
-            <PasswordField
-              password={ this.props.password }
-              passwordFailed={ this.props.passwordFailed }
-              handlePasswordInput={ this.props.handlePasswordInput }
-            />
+  return (
+    <form className="login-form" onSubmit={ props.handleLoginSubmit }>
+      <div className={ usernameClasses.join(" ") }>{ props.activeUser.display_name }</div>
+      <div className={ inputContainerClasses.join(' ') }>
+        <div className="user-password-container">
+          <PasswordField
+            password={ props.password }
+            passwordFailed={ props.passwordFailed }
+            handlePasswordInput={ props.handlePasswordInput }
+          />
+        </div>
+        <div className="submit-row">
+          <div className={ sessionSelectButtonClasses.join(' ') } onClick={ toggleSessionSwitcher.bind(this) }>
+            <div className='text'>{ props.activeSession.name }</div>
+            <div className={ dropdownCaretWrapperClasses } dangerouslySetInnerHTML={{ "__html": dropdownIcon }} />
           </div>
-          <div className="submit-row">
-            <div className={ sessionSelectButtonClasses.join(' ') } onClick={ this.toggleSessionSwitcher.bind(this) }>
-              <div className='text'>{ this.props.activeSession.name }</div>
-              <div className={ dropdownCaretWrapperClasses } dangerouslySetInnerHTML={{ "__html": dropdownIcon }} />
-            </div>
-            <div className="right">
-              <label className={ submitButtonClasses.join(" ") }>
-                <input type="submit" />
-                <div className={ submitButtonWrapperClasses } dangerouslySetInnerHTML={{ "__html": submitIcon }} />
-              </label>
-            </div>
+          <div className="right">
+            <label className={ submitButtonClasses.join(" ") }>
+              <input type="submit" />
+              <div className={ submitButtonWrapperClasses } dangerouslySetInnerHTML={{ "__html": submitIcon }} />
+            </label>
           </div>
         </div>
-        <SessionSwitcher
-          setActiveSession={ this.props.setActiveSession }
-          close={ this.toggleSessionSwitcher.bind(this) }
-          active={ this.state.sessionSwitcherActive }
-        />
-      </form>
-    );
-  }
-}
-
+      </div>
+      <SessionSwitcher
+        setActiveSession={ props.setActiveSession }
+        close={ toggleSessionSwitcher.bind(this) }
+        active={ state.sessionSwitcherActive }
+      />
+    </form>
+  );
+};
 
 UserPanelForm.propTypes = {
   'activeUser': PropTypes.object,
@@ -124,7 +117,6 @@ UserPanelForm.propTypes = {
   'handlePasswordInput': PropTypes.func.isRequired,
   'setActiveSession': PropTypes.func.isRequired
 };
-
 
 export default connect(
   (state) => {

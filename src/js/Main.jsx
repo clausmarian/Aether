@@ -1,7 +1,7 @@
 import 'sass/style.sass';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
@@ -29,20 +29,18 @@ export default function Main() {
     store = createStore(PrimaryReducer, initialState);
   }
 
-  ReactDOM.render(
+  ReactDOM.createRoot(document.getElementById('login-window-mount')).render(
     <Provider store={ store }>
       <LoginWindow />
-    </Provider>,
-    document.getElementById('login-window-mount')
+    </Provider>
   );
 }
-
 
 window.onload = (e) => {
   // Add notifications to the global scope for error handling
   window.notifications = new Notifications();
 
-  let init = () => {
+  const init = () => {
     Main();
     document.getElementById("password-field").focus();
   };
@@ -60,4 +58,3 @@ window.onload = (e) => {
     init();
   }
 };
-

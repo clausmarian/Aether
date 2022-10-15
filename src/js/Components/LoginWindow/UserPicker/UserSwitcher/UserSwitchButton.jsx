@@ -18,10 +18,8 @@ export const UserSwitchButton = ({ handleSwitcherClick }) => {
   );
 };
 
-
 UserSwitchButton.propTypes = {
   'handleSwitcherClick': PropTypes.func.isRequired
 };
-
 
 export default UserSwitchButton;
