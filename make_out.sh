@@ -15,6 +15,7 @@ echo 'Copying files to out'
 mkdir -p out/assets
 
 cp dist/js/Aether.js out
+cp dist/js/Aether.js.LICENSE.txt out
 cp index.html out
 cp index.theme out
 cp LICENSE out

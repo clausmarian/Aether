@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/eslint src/es6/**",
-    "build": "./node_modules/.bin/webpack-cli --progress --color --node-env production",
-    "watch": "./node_modules/.bin/webpack-cli --progress --color --watch --node-env development",
+    "build": "./node_modules/.bin/webpack-cli --progress --color --mode production",
+    "watch": "./node_modules/.bin/webpack-cli --progress --color --watch --mode development",
     "lintf": "./node_modules/.bin/eslint --fix"
   },
   "repository": {
