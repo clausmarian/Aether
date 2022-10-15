@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import Draggable from 'draggable';
+import Draggable from 'react-draggable';
 import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
@@ -19,7 +19,6 @@ import { setPageZoom } from 'Utils/Utils';
 
 const SETTINGS_HEIGHT = 300;
 const SETTINGS_WIDTH = 600;
-let settingsHandle = undefined;
 
 const Settings = props => {
   const [state, setState] = useState({
@@ -28,18 +27,8 @@ const Settings = props => {
   });
 
   useEffect(() => {
-    let draggable = new Draggable(document.getElementById("settings"), {
-      "handle": settingsHandle
-    });
-
-    let centerX = ((window.innerWidth - SETTINGS_WIDTH) / 2);
-    let centerY = ((window.innerHeight - SETTINGS_HEIGHT) / 2);
-
-    draggable.set(centerX, centerY);
-
     // Set default zoom
-    let defaultZoom = props.settings.page_zoom;
-    setPageZoom(defaultZoom);
+    setPageZoom(props.settings.page_zoom);
   }, []);
 
   const handleCategoryClick = (category, e) => {
@@ -134,21 +123,25 @@ const Settings = props => {
   let section = generateSection(state.selectedCategory);
 
   return ReactDOM.createPortal(
-    <div>
-      <div className="settings-handle" ref={ node => settingsHandle = node }>
-        <ul>
-          <li className="settings-minimize" onClick={ handleSettingsMinimize.bind(this) }>&#8722;</li>
-          <li className="settings-close" onClick={ handleSettingsClose.bind(this) }>&#215;</li>
-        </ul>
+    <Draggable
+      handle=".settings-handle"
+      defaultPosition={ {x: (window.innerWidth - SETTINGS_WIDTH) / 2, y: (window.innerHeight - SETTINGS_HEIGHT) / 2} }>
+      <div>
+        <div className="settings-handle">
+          <ul>
+            <li className="settings-minimize" onClick={ handleSettingsMinimize.bind(this) }>&#8722;</li>
+            <li className="settings-close" onClick={ handleSettingsClose.bind(this) }>&#215;</li>
+          </ul>
+        </div>
+        <div className="settings-categories">
+          { categories }
+        </div>
+        <div className="settings-section">
+          { section }
+          <SaveDialogue />
+        </div>
       </div>
-      <div className="settings-categories">
-        { categories }
-      </div>
-      <div className="settings-section">
-        { section }
-        <SaveDialogue />
-      </div>
-    </div>,
+    </Draggable>,
     document.getElementById("settings")
   );
 };

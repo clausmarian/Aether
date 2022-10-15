@@ -6,7 +6,8 @@
   "scripts": {
     "test": "./node_modules/.bin/eslint src/es6/**",
     "build": "./node_modules/.bin/webpack-cli --progress --color --node-env production",
-    "watch": "./node_modules/.bin/webpack-cli --progress --color --watch --node-env development"
+    "watch": "./node_modules/.bin/webpack-cli --progress --color --watch --node-env development",
+    "lintf": "./node_modules/.bin/eslint --fix"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@babel/cli": "^7.17.10",
     "@babel/core": "^7.17.10",
+    "@babel/plugin-transform-runtime": "^7.19.1",
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-react": "^7.16.7",
     "babel-loader": "^8.2.5",
@@ -53,6 +55,7 @@
     "react": "^18.1.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.1.0",
+    "react-draggable": "^4.4.5",
     "react-redux": "^8.0.1",
     "reactcss": "^1.2.3",
     "redux": "^4.2.0",
