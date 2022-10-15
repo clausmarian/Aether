@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 
-import { getAvatarOrDefault } from '../../../../Utils/Utils';
+import UserAvatarImg from '../UserAvatarImg';
 
 
 const FADE_DURATION = 200;
@@ -63,11 +63,7 @@ const UserSwitcher = props => {
     const getBody = (user, className, onClick, key) => {
       return (
         <li className={ className } onClick={ onClick } key={ key }>
-          <div className={ avatarBackgroundClasses }>
-            <div className="avatar-mask">
-              <img className="user-avatar" src={ getAvatarOrDefault(user) } />
-            </div>
-          </div>
+          <UserAvatarImg avatarBackgroundClasses={ avatarBackgroundClasses } image={ user.image } />
           <div className="avatar-name">
             <div className="username">{ user.display_name }</div>
           </div>

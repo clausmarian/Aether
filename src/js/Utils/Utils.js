@@ -1,3 +1,6 @@
+import { getRelativePath } from '../Logic/FileOperations';
+
+
 export const scale = (start, end, percentage, round) => {
   if (round === undefined) {
     round = true;
@@ -42,4 +45,9 @@ export const interpolatePoints = (a, b, ratio) => {
   let y = a.y + (b.y - a.y) * ratio;
 
   return { x, y };
+};
+
+
+export const getDefaultAvatar = () => {
+  return 'assets/img/avatar-default.png';
 };

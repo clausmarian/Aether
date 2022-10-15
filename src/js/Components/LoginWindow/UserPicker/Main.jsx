@@ -11,8 +11,8 @@ import { connect } from 'react-redux';
 import UserSwitchButton from './UserSwitcher/UserSwitchButton';
 import UserSwitcher from './UserSwitcher';
 import UserPanelForm from './Form';
+import UserAvatarImg from './UserAvatarImg';
 
-import { getAvatarOrDefault } from '../../../Utils/Utils';
 
 const FADE_IN_DURATION = 200;
 const ERROR_SHAKE_DURATION = 600;
@@ -244,12 +244,8 @@ const UserPicker = props => {
   return (
     <div className={ `user-panel ${ style }` }>
       <div className={ loginPanelClasses.join(' ') }>
-        <div className={ avatarClasses.join(' ') }>
-          <div className= { avatarBackgroundClasses.join(' ') }>
-            <div className="avatar-mask">
-              <img className="user-avatar" src={ getAvatarOrDefault(props.activeUser.image) } />
-            </div>
-          </div>
+        <div className={ avatarClasses.join(' ') }>  
+          <UserAvatarImg avatarBackgroundClasses={ avatarBackgroundClasses.join(' ') } image={ props.activeUser.image } />
         </div>
         <UserPanelForm
           password={ state.password }
