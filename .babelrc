@@ -4,13 +4,11 @@
       "@babel/preset-env",
       {
         "targets": {
-          "browsers": [ "last 2 versions", "chrome >= 46" ]
+          "browsers": [ "last 2 versions", "chrome >= 80" ]
         }
       }
     ],
     "@babel/preset-react"
   ],
-  "plugins": [
-    "jsx-control-statements"
-  ]
+  "plugins": ["jsx-control-statements", "@babel/plugin-transform-runtime"]
 }

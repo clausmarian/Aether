@@ -3,7 +3,7 @@
 // Basic distro / visibility / date & time formatting settings.
 
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { connect } from 'react-redux';
 
@@ -21,8 +21,12 @@ const onLogoChange = (props, e) => {
 };
 
 const LogoChooser = props => {
-  let logos = FileOperations.getLogos();
+  const [logos, setLogos] = useState([]);   
   let activeLogo = props.settings.distro;
+
+  useEffect(() => {
+    (async () => setLogos(await FileOperations.getLogos()))();
+  }, []);
 
   let items = logos.map((e) => {
     let [path, fileName] = e;

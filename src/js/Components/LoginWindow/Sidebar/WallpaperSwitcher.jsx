@@ -27,7 +27,7 @@ const WallpaperSwitcher = props => {
   
   const [state, setState] = useState({
     "directory": wallpaperDirectory,
-    "wallpapers": FileOperations.getWallpapers(wallpaperDirectory),
+    "wallpapers": [],
     "selectedWallpaper": undefined,
     "savedWallpaper": undefined,
     "switcher": {
@@ -52,7 +52,17 @@ const WallpaperSwitcher = props => {
     document.body.style.background = `url('${ directory }${ image }')`;
     document.body.style.backgroundPosition = 'center';
     document.body.style.backgroundSize = "cover";
-    
+
+    (async () => {
+      const wps = await FileOperations.getWallpapers(wallpaperDirectory);
+      setState(old => {
+        return {
+          ...old,
+          "wallpapers": wps
+        };
+      });
+    })();
+
     setCyclerState(old => {
       return {
         ...old,

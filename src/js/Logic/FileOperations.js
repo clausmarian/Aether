@@ -3,7 +3,7 @@
 // LightDM related file / config fetching.
 
 export function getRelativePath(path="") {
-  return "/usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether/" + path;
+  return `/usr/share/web-greeter/themes/lightdm-webkit-theme-aether/${ path }`;
 }
 
 
@@ -26,23 +26,27 @@ export function getWallpaperDirectory() {
 }
 
 
-export function getWallpapers(directory) {
+export async function getWallpapers(directory) {
   // If we're in test mode, we stick to a static rotation of three default wallpapers.
   // In production, it is possible that a user will change what wallpapers are available.
   if (window.__debug === true) {
     return ['boko.jpg', 'mountains-2.png', 'space-1.jpg'];
   }
 
-  let wallpapers;
+  let wallpapers = [];
 
-  wallpapers = window.theme_utils.dirlist_sync(directory, true);
-  wallpapers = wallpapers.map((e) => e.split("/").pop());
+  await new Promise(resolve => {
+    window.theme_utils.dirlist(directory, true, images => {
+      wallpapers = images;
+      resolve();
+    });
+  });
 
-  return wallpapers;
+  return wallpapers.map((e) => e.split("/").pop());
 }
 
 
-export function getLogos() {
+export async function getLogos() {
   // If we're in test mode, just return the default three.
   if (window.__debug === true) {
     return [
@@ -58,8 +62,14 @@ export function getLogos() {
 
   // Return a tuple of the path and filename for usage in the Settings dialogue.
   let userLogo = window.greeter_config.branding.logo;
-  let themeLogos = window.theme_utils.dirlist_sync(getRelativePath("assets/img/logos/"), true);
+  let themeLogos = [];
 
+  await new Promise(resolve => {
+    window.theme_utils.dirlist("assets/img/logos", true, images => {
+      themeLogos = images;
+      resolve();
+    });
+  });
   themeLogos.push(userLogo);
 
   return themeLogos.map((e) => [e, e.split("/").pop()]);
