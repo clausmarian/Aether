@@ -157,7 +157,6 @@ const UserPicker = props => {
   };
 
   const handlePasswordInput = e =>  {
-    console.log("set password: " + e.target.value);
     setState(old => {
       return {
         ...old,
