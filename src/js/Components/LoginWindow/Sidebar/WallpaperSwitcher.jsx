@@ -17,7 +17,7 @@ const FADEOUT_TIME = 600;
 // Loads wallpapers by fading them in
 export class WallpaperLoader {
   callWallpaperChangeListeners(newWallpaper, preloadedWallpaper) {
-    for (const listener in this.wallpaperChangeListeners) {
+    for (const listener of this.wallpaperChangeListeners) {
       if (typeof(listener) === "function") {
         listener(newWallpaper, preloadedWallpaper);
       }
