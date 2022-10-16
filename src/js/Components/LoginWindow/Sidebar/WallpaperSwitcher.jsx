@@ -229,6 +229,14 @@ export class WallpaperCycler extends WallpaperLoader {
 
 
 const WallpaperSwitcher = props => {
+  const restoreStarsSetting = () => {
+    props.dispatch({
+      'type': 'SETTINGS_SET_VALUE',
+      'name': 'experimental_stars_enabled',
+      'value': cycler.defaultStarsEnabled
+    });
+  };
+
   const [switcher, setSwitcher] = useState(WallpaperCycler.makeSwitcher());
   const [cycler, setCycler] = useState(new WallpaperCycler(restoreStarsSetting, switcher, setSwitcher));
   cycler.addWallpaperChangeListener((newWallpaper, preloadedWallpaper) => {
@@ -248,6 +256,7 @@ const WallpaperSwitcher = props => {
     if (cycler.switcher.active === false) {
       cycler.defaultStarsEnabled = props.starsEnabled;  
       setCycler(cycler);
+
       props.dispatch({
         'type': 'SETTINGS_SET_VALUE',
         'name': 'experimental_stars_enabled',
@@ -267,14 +276,6 @@ const WallpaperSwitcher = props => {
 
   const acceptWallpaper = () => {
     cycler.acceptWallpaper();
-  };
-
-  const restoreStarsSetting = () => {
-    props.dispatch({
-      'type': 'SETTINGS_SET_VALUE',
-      'name': 'experimental_stars_enabled',
-      'value': cycler.defaultStarsEnabled
-    });
   };
 
   const generateOptions = () => {
