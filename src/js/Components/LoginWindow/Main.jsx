@@ -19,6 +19,9 @@ import ExperimentalStars from 'Components/ExperimentalStars';
 const LoginWindow = props => { 
   useEffect(() => {
     document.getElementById('preloader').className += 'loaded';
+    window.greeter_comm.broadcast({
+      'type': 'primary_loaded'
+    });
   }, []);
 
   const settings = props.settings;

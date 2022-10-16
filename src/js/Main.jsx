@@ -12,8 +12,10 @@ import Notifications from './Utils/Notifications';
 import { getDefaultState, PrimaryReducer } from './Reducers/PrimaryReducer';
 import { addAdditionalSettings } from './Reducers/SettingsReducer';
 
+import { WallpaperLoader } from 'Components/LoginWindow/Sidebar/WallpaperSwitcher';
 
-export default function Main() {
+
+const getStore = () => {
   let initialState = getDefaultState();
   initialState = addAdditionalSettings(initialState);
 
@@ -28,18 +30,53 @@ export default function Main() {
   } else {
     store = createStore(PrimaryReducer, initialState);
   }
+  
+  return store;
+};
+
+
+const primaryMain = () => {
+  const store = getStore(); 
 
   ReactDOM.createRoot(document.getElementById('login-window-mount')).render(
     <Provider store={ store }>
       <LoginWindow />
     </Provider>
   );
+};
+
+
+const secondaryMain = () => {
+  const wallpaperLoader = new WallpaperLoader();
+  wallpaperLoader.init();
+
+  addEventListener('GreeterBroadcastEvent', (evt) => {
+    const win = evt.window;
+    const data = evt.data;
+    console.log("event: " + data.type);    
+    if (!win.is_primary)
+      return;
+
+    if (data.type === 'primary_loaded') {
+      document.getElementById('preloader').className += 'loaded';
+    } else if (data.type === 'update_wallpaper') {
+      // Update wallpaper when the wallpaper in the primary window is changed
+      wallpaperLoader.setWallpaper(data.newWallpaper, data.preloadedWallpaper);
+    }
+  });
+};
+
+
+export default function Main() {
+  if (window.greeter_comm.window_metadata.is_primary) {
+    window.notifications = new Notifications();
+    primaryMain();
+  } else {
+    secondaryMain();
+  }
 }
 
 window.onload = (e) => {
-  // Add notifications to the global scope for error handling
-  window.notifications = new Notifications();
-
   const init = () => {
     Main();
     //document.getElementById('password-field').focus();

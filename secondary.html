@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html id="root">
+  <head>
+    <meta charset="utf-8">
+    <title>Amazing Content</title>
+	<link rel="stylesheet" href="preloader.css">
+  </head>
+  <body>
+    <div id="preloader"></div>
+
+    <div class="wallpaper-background">
+      <div id="experimental-mount"></div>
+      <div class="wallpaper-foreground"></div>
+      <div class="wallpaper-preload"></div>
+    </div>
+    <script type="text/javascript">
+    window.__debug = true;
+
+    if (window.__debug == true) {
+      window.greeter_comm = {
+        'window_metadata': {
+          'is_primary': false
+        }
+      };
+    }
+    </script>
+    <script src="dist/js/Aether.js"></script>
+  </body>
+</html>
