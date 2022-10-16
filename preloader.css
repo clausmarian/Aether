@@ -1,0 +1,26 @@
+*:not(input) {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+}
+
+#preloader {
+	background: rgb(37, 37, 37);
+	position: absolute;
+
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+
+	height: 100%;
+	width: 100%;
+
+	z-index: 99999;
+
+	transition: background 1s cubic-bezier(0.4, 0.0, 0.2, 1), top 2s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+#preloader.loaded {
+	background: rgba(0,0,0,0);
+	top: 100vh;
+}
