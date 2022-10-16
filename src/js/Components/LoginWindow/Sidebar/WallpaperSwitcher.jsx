@@ -8,140 +8,246 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 
-
 import * as FileOperations from 'Logic/FileOperations';
 import * as Settings from 'Logic/Settings';
 
 const FADEOUT_TIME = 600;
 
 
-const WallpaperSwitcher = props => {
-  const wallpaperDirectory = FileOperations.getWallpaperDirectory();
+// Loads wallpapers by fading them in
+export class WallpaperLoader {
+  callWallpaperChangeListeners(newWallpaper, preloadedWallpaper) {
+    for (const listener in this.wallpaperChangeListeners) {
+      if (typeof(listener) === "function") {
+        listener(newWallpaper, preloadedWallpaper);
+      }
+    }
+  }
 
-  const [cyclerState, setCyclerState] = useState({
-    "defaultStarsEnabled": undefined,
-    "cyclerBackground": undefined,
-    "cyclerForeground": undefined,
-    "cyclerPreloader": undefined
-  });
+  addWallpaperChangeListener(listener) {
+    this.wallpaperChangeListeners.push(listener);
+  }
+
+  constructor(restoreStarsSetting=undefined, switcher=undefined, setSwitcher=undefined, defaultSwitcher=undefined) {
+    if (restoreStarsSetting == undefined) {
+      this.restoreStarsSetting = () => {};
+    } else {
+      this.restoreStarsSetting = restoreStarsSetting;
+    }
+
+    this.wallpaperChangeListeners = [];
+ 
+    this.defaultStarsEnabled = undefined;
+    this.cyclerBackground = undefined;
+    this.cyclerForeground = undefined;
+    this.cyclerPreloader = undefined;
   
-  const [state, setState] = useState({
-    "directory": wallpaperDirectory,
-    "wallpapers": [],
-    "selectedWallpaper": undefined,
-    "savedWallpaper": undefined,
-    "switcher": {
+    this.wallpaperDirectory = FileOperations.getWallpaperDirectory();
+    this.selectedWallpaper = undefined;
+
+    // Use react state hook to trigger re render when the switcher is updated (needed for the save/reject option buttons)
+    if (switcher !== undefined && setSwitcher !== undefined) {
+      this.switcher = switcher;
+    } else {
+      if (defaultSwitcher == undefined) {
+        this.switcher = WallpaperCycler.makeSwitcher();
+      } else {
+        this.switcher = defaultSwitcher;
+      }
+    }
+    
+    this.setSwitcher = getVal => {
+      if (typeof(getVal) === "function") {
+        this.switcher = getVal(this.switcher);
+      } else {
+        this.switcher = getVal;
+      }
+      
+      if (setSwitcher != undefined)
+        setSwitcher(getVal);
+    };
+  }
+
+  static makeSwitcher() {
+    return {
+      "active": false,
+      "currentlyFading": false
+    };
+  }
+
+  resetSwitcher() {
+    this.setSwitcher(old => {
+      return {
+        ...old,
+        "active": false,
+        "index": 0
+      };
+    });
+  }
+  
+  init() {
+    // Set background wallpaper
+    this.selectedWallpaper = Settings.requestSetting('wallpaper', 'space-1.jpg');
+    
+    this.cyclerBackground = document.querySelectorAll('.wallpaper-background')[0];
+    this.cyclerForeground = document.querySelectorAll('.wallpaper-foreground')[0];
+    this.cyclerPreloader = document.querySelectorAll('.wallpaper-preload')[0];
+  
+    this.cyclerForeground.style.background = `url('${ this.wallpaperDirectory }${ this.selectedWallpaper }')`;
+    this.cyclerForeground.style.backgroundPosition = 'center';
+    this.cyclerForeground.style.backgroundSize = "cover";
+    document.body.style.background = `url('${ this.wallpaperDirectory }${ this.selectedWallpaper}')`;
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundSize = "cover";
+  }
+
+  setWallpaper(newWallpaper, preloadedWallpaper=false) {
+    this.callWallpaperChangeListeners(newWallpaper, preloadedWallpaper);
+      
+    // Fadeout foreground wallpaper to new wallpaper
+    this.cyclerBackground.style.background = `url('${ this.wallpaperDirectory }${ newWallpaper }')`;
+    this.cyclerBackground.style.backgroundPosition = 'center';
+    this.cyclerBackground.style.backgroundSize = 'cover';
+    this.cyclerForeground.className += " fadeout";
+
+    this.setSwitcher(old => {
+      return {
+        ...old,
+        "currentlyFading": true
+      };
+    });
+
+    if (preloadedWallpaper !== false) {
+      // Preload the next image
+      this.cyclerPreloader.style.background = `url('${ this.wallpaperDirectory }${ preloadedWallpaper }')`;
+    }
+
+    setTimeout(() => {
+      // Cycle new wallpaper back to the front, make it visible again.
+      this.cyclerForeground.style.background = `url('${ this.wallpaperDirectory }${ newWallpaper }')`;
+      this.cyclerForeground.style.backgroundPosition = 'center';
+      this.cyclerForeground.style.backgroundSize = 'cover';
+      this.cyclerForeground.className = this.cyclerForeground.className.replace(" fadeout", "");
+      document.body.style.background = `url('${ this.wallpaperDirectory }${ newWallpaper }')`;
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundSize = 'cover';
+    
+      this.setSwitcher(old => {
+        return {
+          ...old,
+          "currentlyFading": false
+        };
+      });
+
+      this.selectedWallpaper = newWallpaper;
+    }, FADEOUT_TIME);
+  }
+}
+
+
+// Supports cycling wallpapers in a WallpaperLoader
+export class WallpaperCycler extends WallpaperLoader {
+  constructor(restoreStarsSetting=undefined, switcher=undefined, setSwitcher=undefined) {
+    super(restoreStarsSetting, switcher, setSwitcher, WallpaperCycler.makeSwitcher());
+    this.wallpapers = [];
+    this.savedWallpaper = undefined;
+  }
+
+  init() {
+    super.init();
+
+    this.savedWallpaper = this.selectedWallpaper;
+
+    (async () => {
+      this.wallpapers = await FileOperations.getWallpapers(this.wallpaperDirectory);
+      
+      // Set switcher index to index of the saved wallpaper
+      const savedWallpaperIndex = this.wallpapers.indexOf(this.savedWallpaper);
+      if (savedWallpaperIndex !== -1) {
+        this.switcher.index = savedWallpaperIndex;
+      }
+    })();
+  }
+
+  static makeSwitcher() {
+    return {
       "active": false,
       "currentlyFading": false,
       "index": 0
-    },
-  });
+    };
+  }
 
-  useEffect(() => {
-    // Set background wallpaper
-    let directory = state.directory;
-    let image = Settings.requestSetting('wallpaper', 'space-1.jpg');
-    
-    const cyclerBackground = document.querySelectorAll('.wallpaper-background')[0];
-    const cyclerForeground = document.querySelectorAll('.wallpaper-foreground')[0];
-    const cyclerPreloader = document.querySelectorAll('.wallpaper-preload')[0];
-  
-    cyclerForeground.style.background = `url('${ directory }${ image }')`;
-    cyclerForeground.style.backgroundPosition = 'center';
-    cyclerForeground.style.backgroundSize = "cover";
-    document.body.style.background = `url('${ directory }${ image }')`;
-    document.body.style.backgroundPosition = 'center';
-    document.body.style.backgroundSize = "cover";
+  rejectWallpaper() {
+    this.resetSwitcher(); 
+    this.setWallpaper(this.savedWallpaper);
+    this.restoreStarsSetting();
+  }
 
-    (async () => {
-      const wps = await FileOperations.getWallpapers(wallpaperDirectory);
-      setState(old => {
-        return {
-          ...old,
-          "wallpapers": wps
-        };
-      });
-    })();
-
-    setCyclerState(old => {
-      return {
-        ...old,
-        "cyclerBackground": cyclerBackground,
-        "cyclerForeground": cyclerForeground,
-        "cyclerPreloader": cyclerPreloader
-      };
-    });
-    
-    setState(old => {
-      return {
-        ...old,
-        "savedWallpaper": image
-      };
-    });
-  }, []);
-
-  const acceptWallpaper = () => {
-    let selectedWallpaper = state.selectedWallpaper;
-    let switcher = state.switcher;
-
+  acceptWallpaper() { 
     // Due diligence.
-    Settings.saveSetting('wallpaper', selectedWallpaper);
+    Settings.saveSetting('wallpaper', this.selectedWallpaper);
     window.notifications.generate("This wallpaper has been saved as your default background.", 'success');
 
-    // Reset switcher state
-    switcher.active = false;
-    switcher.index = 0;
+    this.resetSwitcher();
+    this.savedWallpaper = this.selectedWallpaper;
+    
+    this.restoreStarsSetting();
+  }
 
-    setState(old => {
+  cycleWallpaper() {
+    this.setSwitcher(old => {
       return {
         ...old,
-        "selectedWallpaper": selectedWallpaper,
-        "savedWallpaper": selectedWallpaper,
-        "switcher": switcher
+        "active": true
       };
     });
-
-    restoreStarsSetting();
-  };
-
-  const cycleWallpaper = () => {
+    
     // Prevent animation transitions stacking and causing issues.
-    if (state.switcher.currentlyFading === true) {
+    if (this.switcher.currentlyFading === true) {
       return false;
     }
 
-    let wallpapers = state.wallpapers;
-    let switcher = state.switcher;
+    const nextIndex = (index) => (index + this.wallpapers.length + 1) % this.wallpapers.length;
 
-    const nextIndex = (index) => (index + wallpapers.length + 1) % wallpapers.length;
-
-    let newIndex = nextIndex(switcher.index);
-    let newWallpaper = wallpapers[newIndex];
+    let newIndex = nextIndex(this.switcher.index);
+    let newWallpaper = this.wallpapers[newIndex];
 
     let preloadedIndex = nextIndex(newIndex);
-    let preloadedWallpaper = wallpapers[preloadedIndex];
+    let preloadedWallpaper = this.wallpapers[preloadedIndex];
 
-    setWallpaper(newWallpaper, preloadedWallpaper);
-
-    switcher.index = newIndex;
-
-    setState(old => {
+    this.setWallpaper(newWallpaper, preloadedWallpaper);
+    
+    this.switcher.index = newIndex;
+    this.setSwitcher(old => {
       return {
         ...old,
-        "switcher": switcher
+        "index": newIndex
       };
     });
-  };
+  }
+}
+
+
+const WallpaperSwitcher = props => {
+  const [switcher, setSwitcher] = useState(WallpaperCycler.makeSwitcher());
+  const [cycler, setCycler] = useState(new WallpaperCycler(restoreStarsSetting, switcher, setSwitcher));
+  cycler.addWallpaperChangeListener((newWallpaper, preloadedWallpaper) => {
+    // Broadcast wallpaper change to other screens
+    window.greeter_comm.broadcast({
+      'type': 'update_wallpaper',
+      'newWallpaper': newWallpaper,
+      'preloadedWallpaper': preloadedWallpaper
+    });
+  });
+
+  useEffect(() => {
+    cycler.init();
+  }, []);
 
   const handleSwitcherActivation = () => {
-    if (state.switcher.active === false) {
-      setCyclerState(old => {
-        return {
-          ...old,
-          "defaultStarsEnabled": props.starsEnabled
-        };
-      });
-
+    if (cycler.switcher.active === false) {
+      cycler.defaultStarsEnabled = props.starsEnabled;  
+      setCycler(cycler);
       props.dispatch({
         'type': 'SETTINGS_SET_VALUE',
         'name': 'experimental_stars_enabled',
@@ -150,92 +256,31 @@ const WallpaperSwitcher = props => {
     }
 
     setTimeout(() => {
-      let switcher = state.switcher;
-      switcher.active = true;
-      cycleWallpaper();
-
-      setState(old => {
-        return {
-          ...old,
-          "switcher": switcher
-        };
-      });
+      cycler.cycleWallpaper();
     }, 100);
   };
 
   const rejectWallpaper = () => {
-    let savedWallpaper = state.savedWallpaper;
-    let switcher = state.switcher;
-
-    // Reset switcher state
-    switcher.active = false;
-    switcher.index = 0;
-
-    setState(old => {
-      return {
-        ...old,
-        "switcher": switcher
-      };
-    });
-
-    setWallpaper(savedWallpaper);
-    restoreStarsSetting();
-
+    cycler.rejectWallpaper(); 
     window.notifications.generate("Wallpaper reset to default, no changes saved.");
   };
 
-  const setWallpaper = (newWallpaper, preloadedWallpaper=false) => {
-    let switcher = state.switcher;
-
-    // Fadeout foreground wallpaper to new wallpaper
-    let directory = state.directory;
-    cyclerState.cyclerBackground.style.background = `url('${ directory }${ newWallpaper }')`;
-    cyclerState.cyclerBackground.style.backgroundPosition = 'center';
-    cyclerState.cyclerBackground.style.backgroundSize = 'cover';
-    cyclerState.cyclerForeground.className += " fadeout";
-
-    switcher.currentlyFading = true;
-
-    if (preloadedWallpaper !== false) {
-      // Preload the next image
-      cyclerState.cyclerPreloader.style.background = `url('${ directory }${ preloadedWallpaper }')`;
-    }
-
-    setTimeout(() => {
-      // Cycle new wallpaper back to the front, make it visible again.
-      cyclerState.cyclerForeground.style.background = `url('${ directory }${ newWallpaper }')`;
-      cyclerState.cyclerForeground.style.backgroundPosition = 'center';
-      cyclerState.cyclerForeground.style.backgroundSize = 'cover';
-      cyclerState.cyclerForeground.className = cyclerState.cyclerForeground.className.replace(" fadeout", "");
-      document.body.style.background = `url('${ directory }${ newWallpaper }')`;
-      document.body.style.backgroundPosition = 'center';
-      document.body.style.backgroundSize = 'cover';
-
-      let switcher = state.switcher;
-      switcher.currentlyFading = false;
-
-      setState(old => {
-        return {
-          ...old,
-          "selectedWallpaper": newWallpaper,
-          "switcher": switcher
-        };
-      });
-    }, FADEOUT_TIME);
+  const acceptWallpaper = () => {
+    cycler.acceptWallpaper();
   };
 
   const restoreStarsSetting = () => {
     props.dispatch({
       'type': 'SETTINGS_SET_VALUE',
       'name': 'experimental_stars_enabled',
-      'value': cyclerState.defaultStarsEnabled
+      'value': cycler.defaultStarsEnabled
     });
   };
 
   const generateOptions = () => {
     let classes = ['options'];
 
-    if (state.switcher.active === true) {
+    if (cycler.switcher.active === true) {
       classes.push('active');
     }
 
