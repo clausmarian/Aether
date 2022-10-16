@@ -8,6 +8,8 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 
+import { Event, Signals } from 'Logic/Signals';
+
 import Sidebar from './Sidebar';
 import UserPicker from './UserPicker';
 import Settings from 'Components/Settings';
@@ -19,12 +21,13 @@ import ExperimentalStars from 'Components/ExperimentalStars';
 const LoginWindow = props => { 
   useEffect(() => {
     document.getElementById('preloader').className += 'loaded';
-    window.greeter_comm.broadcast({
-      'type': 'primary_loaded'
-    });
+    Signals.broadcast(Event.PRIMARY_LOADED);
   }, []);
 
   const settings = props.settings;
+  Signals.broadcast(Event.UPDATE_STARS_ENABLED, {
+    'enabled': props.settings.experimental_stars_enabled
+  });
 
   let style = cxs({
     "border-radius": settings.window_border_radius,
@@ -40,7 +43,7 @@ const LoginWindow = props => {
     <DateDisplay key='date-display' />,
     <Settings key='settings-window' />,
     <SettingsToggler key='settings-button' />,
-    <If condition={ props.settings.experimental_stars_enabled }  key='experimental-stars-wrap' >
+    <If condition={ props.settings.experimental_stars_enabled } key='experimental-stars-wrap' >
       <ExperimentalStars key='experimental-stars' />
     </If>,
   ];

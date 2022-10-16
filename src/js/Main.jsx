@@ -12,7 +12,10 @@ import Notifications from './Utils/Notifications';
 import { getDefaultState, PrimaryReducer } from './Reducers/PrimaryReducer';
 import { addAdditionalSettings } from './Reducers/SettingsReducer';
 
+import { Event, Signals } from 'Logic/Signals';
+
 import { WallpaperLoader } from 'Components/LoginWindow/Sidebar/WallpaperSwitcher';
+import ExperimentalStarsWrapper from 'Components/LoginWindow/ExperimentalStarsWrapper';
 
 
 const getStore = () => {
@@ -47,21 +50,25 @@ const primaryMain = () => {
 
 
 const secondaryMain = () => {
+  Signals.prepare();
+
   const wallpaperLoader = new WallpaperLoader();
   wallpaperLoader.init();
 
-  addEventListener('GreeterBroadcastEvent', (evt) => {  
-    if (!evt.window.is_primary)
-      return;
+  // Hide preloader when the preloader of the primary window is hidden
+  Signals.listen(Event.PRIMARY_LOADED, () =>
+    document.getElementById('preloader').className += 'loaded');
+
+  // Update wallpaper when the wallpaper in the primary window is changed
+  Signals.listen(Event.UPDATE_WALLPAPER, (newWallpaper, preloadedWallpaper) =>
+    wallpaperLoader.setWallpaper(newWallpaper, preloadedWallpaper));
  
-    const data = evt.data;
-    if (data.type === 'primary_loaded') {
-      document.getElementById('preloader').className += 'loaded';
-    } else if (data.type === 'update_wallpaper') {
-      // Update wallpaper when the wallpaper in the primary window is changed
-      wallpaperLoader.setWallpaper(data.newWallpaper, data.preloadedWallpaper);
-    }
-  });
+  const store = getStore();
+  ReactDOM.createRoot(document.getElementById('experimental-mount')).render(
+    <Provider store={ store }>
+      <ExperimentalStarsWrapper />
+    </Provider>
+  );
 };
 
 

@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 
 import * as FileOperations from 'Logic/FileOperations';
 import * as Settings from 'Logic/Settings';
+import { Event, Signals } from 'Logic/Signals';
 
 const FADEOUT_TIME = 600;
 
@@ -241,8 +242,7 @@ const WallpaperSwitcher = props => {
   const [cycler, setCycler] = useState(new WallpaperCycler(restoreStarsSetting, switcher, setSwitcher));
   cycler.addWallpaperChangeListener((newWallpaper, preloadedWallpaper) => {
     // Broadcast wallpaper change to other screens
-    window.greeter_comm.broadcast({
-      'type': 'update_wallpaper',
+    Signals.broadcast(Event.UPDATE_WALLPAPER, {
       'newWallpaper': newWallpaper,
       'preloadedWallpaper': preloadedWallpaper
     });
