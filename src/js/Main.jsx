@@ -50,13 +50,11 @@ const secondaryMain = () => {
   const wallpaperLoader = new WallpaperLoader();
   wallpaperLoader.init();
 
-  addEventListener('GreeterBroadcastEvent', (evt) => {
-    const win = evt.window;
-    const data = evt.data;
-    console.log("event: " + data.type);    
-    if (!win.is_primary)
+  addEventListener('GreeterBroadcastEvent', (evt) => {  
+    if (!evt.window.is_primary)
       return;
-
+ 
+    const data = evt.data;
     if (data.type === 'primary_loaded') {
       document.getElementById('preloader').className += 'loaded';
     } else if (data.type === 'update_wallpaper') {
