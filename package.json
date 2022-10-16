@@ -1,6 +1,6 @@
 {
   "name": "lightdm-webkit-theme-aether",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Elegant LightDM Webkit theme.",
   "main": "index.js",
   "scripts": {
